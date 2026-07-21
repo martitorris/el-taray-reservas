@@ -1,0 +1,1513 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El Taray · Reservas por tramos</title>
+<style>
+  :root{
+    --paper:#FAF5EA; --paper-2:#F1E8D3; --paper-3:#E6D9BC;
+    --ink:#332A1D; --ink-soft:#6E6350; --ink-faint:#9C907A;
+    --sea:#B98A2E; --sea-deep:#875E15; --sea-tint:#F3E8CD;
+    --sun:#BC5A2C; --sun-deep:#8C3E1C; --sun-tint:#F3E0D2;
+    --coral:#A5382A; --coral-tint:#F0DBD3;
+    --vina:#6C7B3A; --vina-deep:#4E5A27;
+    --line:#E3D6BB; --line-soft:#EEE6D2;
+    --shadow:0 1px 2px rgba(34,50,64,.06),0 8px 24px rgba(34,50,64,.08);
+    --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --colw:38px; --rail:210px; --hdr:78px; --laneh:34px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--sans); color:var(--ink); -webkit-font-smoothing:antialiased; line-height:1.4;
+    background-color:var(--paper);
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><g stroke='%23b98a2e' stroke-width='1' opacity='0.06'><line x1='4' y1='10' x2='9' y2='4'/><line x1='20' y1='16' x2='24' y2='9'/><line x1='32' y1='8' x2='37' y2='3'/><line x1='12' y1='30' x2='16' y2='24'/><line x1='28' y1='34' x2='33' y2='28'/></g></svg>");}
+  button{font-family:inherit; cursor:pointer}
+  input,select,textarea{font-family:inherit; font-size:14px; color:var(--ink)}
+
+  .hero{position:relative; height:172px; overflow:hidden; border-bottom:1px solid var(--line); background:#EAE1C9}
+  .hero .scene{position:absolute; inset:0; width:100%; height:100%; display:block}
+  .hero .heroveil{position:absolute; top:0; left:0; right:0; height:118px; background:linear-gradient(90deg, var(--paper) 0%, rgba(250,245,234,.8) 16%, rgba(250,245,234,.28) 34%, rgba(250,245,234,0) 48%)}
+  .herocontent{position:absolute; inset:0; display:flex; align-items:flex-start; justify-content:space-between; padding:20px 24px; gap:16px}
+  .house{font-family:var(--serif); font-size:44px; font-weight:700; letter-spacing:.4px; color:var(--sea-deep); line-height:.95; margin:0}
+  .house .the{font-style:italic; font-weight:400; color:var(--sun-deep); font-size:29px; margin-right:8px}
+  .subtitle{font-size:13px; color:var(--ink-soft); letter-spacing:.1em; text-transform:uppercase; margin-top:7px; display:flex; align-items:center; gap:6px}
+  .yearsel{font-family:var(--serif); font-style:italic; font-size:16px; letter-spacing:normal; text-transform:none; color:var(--vina-deep); background:transparent; border:0; border-bottom:1.5px dotted var(--sea); padding:0 2px 1px; cursor:pointer}
+  .yearsel:focus{outline:none; border-bottom-color:var(--sea-deep)}
+  .place{font-family:var(--serif); font-style:italic; font-size:14px; color:var(--vina-deep); margin-top:3px}
+  .top{position:sticky; top:0; z-index:60; background:var(--paper); border-bottom:1px solid var(--line); padding:10px 22px}
+  .brandrow{display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap}
+  .spacer{flex:1}
+  .actions{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+  .btn{border:1px solid var(--line); background:#fff; color:var(--ink); border-radius:9px; padding:8px 13px; font-size:13.5px; font-weight:500; display:inline-flex; align-items:center; gap:7px; transition:.12s}
+  .btn:hover{border-color:var(--sea); color:var(--sea-deep)}
+  .btn:focus-visible{outline:2px solid var(--sea); outline-offset:2px}
+  .btn.primary{background:var(--vina); border-color:var(--vina); color:#fff; font-weight:600}
+  .btn.primary:hover{background:var(--vina-deep); border-color:var(--vina-deep); color:#fff}
+  .btn.ghost{background:transparent}
+  .btn.sm{padding:6px 10px; font-size:12.5px}
+  .ico{width:16px;height:16px;display:inline-block;flex:none}
+
+  .toolbar{display:flex; align-items:center; gap:12px; margin-top:0; flex-wrap:wrap}
+  .seg{display:inline-flex; border:1px solid var(--line); border-radius:9px; overflow:hidden; background:#fff}
+  .seg button{border:0; background:transparent; padding:7px 14px; font-size:13px; font-weight:500; color:var(--ink-soft); border-right:1px solid var(--line)}
+  .seg button:last-child{border-right:0}
+  .seg button.on{background:var(--sea); color:#fff}
+  .search{position:relative}
+  .search input{border:1px solid var(--line); border-radius:9px; padding:8px 12px 8px 32px; width:200px; background:#fff}
+  .search input:focus{outline:none; border-color:var(--sea)}
+  .search .ico{position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--ink-faint)}
+  .legend{display:flex; align-items:center; gap:14px; font-size:12px; color:var(--ink-soft); margin-left:auto}
+  .legend span{display:inline-flex; align-items:center; gap:6px}
+  .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+  .banner{margin:12px 22px 0; border-radius:9px; padding:11px 15px; font-size:13.5px; display:flex; align-items:flex-start; gap:10px}
+  .banner.alert{background:var(--coral-tint); border:1px solid #E7B7AC; border-left:4px solid var(--coral); color:#7A2A1B}
+  .banner.ok{background:var(--sea-tint); border:1px solid #BFDCE1; border-left:4px solid var(--sea); color:var(--sea-deep)}
+  .banner b{color:var(--coral)}
+  .banner .list{margin:4px 0 0; padding:0; list-style:none}
+  .banner .list li{margin-top:5px; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+  .banner .jump{color:var(--coral); text-decoration:underline; cursor:pointer; background:none; border:0; padding:0; font-size:inherit}
+  .accept{border:1px solid var(--coral); color:var(--coral); background:#fff; border-radius:7px; padding:2px 9px; font-size:12px; font-weight:600}
+  .accept:hover{background:var(--coral); color:#fff}
+  .accnote{margin-top:6px; font-size:12.5px; color:var(--sun-deep)}
+  .accnote button{background:none;border:0;color:var(--sun-deep);text-decoration:underline;cursor:pointer;font-size:inherit;padding:0;margin-left:6px}
+
+  .wrap{padding:16px 22px 40px}
+  .scroll{overflow:auto; border:1px solid var(--line); border-radius:12px; background:#fff; box-shadow:var(--shadow); max-height:calc(100vh - 220px)}
+  .grid{position:relative; font-size:12px}
+  .row{display:flex; border-bottom:1px solid var(--line-soft)}
+  .row:last-child{border-bottom:0}
+
+  .headrow{position:sticky; top:0; z-index:40; background:var(--paper-2)}
+  .corner{position:sticky; left:0; z-index:50; width:var(--rail); flex:none; background:var(--paper-3); border-right:1px solid var(--line); display:flex; align-items:center; padding:0 14px; height:var(--hdr)}
+  .corner .t{font-family:var(--serif); font-size:15px; color:var(--sea-deep); font-weight:700}
+  .corner .s{font-size:11px; color:var(--ink-soft); margin-top:3px}
+  .days{display:flex; height:var(--hdr); position:relative}
+  .mband{position:absolute; top:0; height:22px; display:flex; align-items:center; padding-left:9px; font-family:var(--serif); font-weight:700; font-size:11.5px; color:var(--sea-deep); text-transform:uppercase; letter-spacing:.13em; background:var(--paper-3); border-left:1px solid var(--line); border-bottom:1px solid var(--line); pointer-events:none}
+  .day{width:var(--colw); flex:none; border-left:1px solid var(--line-soft); display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding-top:27px; position:relative}
+  .day.we{background:#F0EBDD}
+  .day .wd{font-size:9.5px; color:var(--ink-faint); text-transform:uppercase; line-height:1}
+  .day .dn{font-size:13px; font-weight:600; color:var(--ink); margin-top:3px; line-height:1}
+  .day .occ{margin-top:5px; font-size:9.5px; font-weight:700; color:#fff; background:var(--sea); border-radius:9px; min-width:16px; text-align:center; padding:0 3px; line-height:15px}
+  .day .occ.empty{background:transparent; color:var(--ink-faint); font-weight:500}
+  .day .occ.full{background:var(--sun-deep)}
+  .day.today::after{content:""; position:absolute; top:22px; bottom:0; left:0; width:2px; background:var(--vina-deep)}
+
+  .rail{position:sticky; left:0; z-index:20; width:var(--rail); flex:none; background:#fff; border-right:1px solid var(--line); padding:11px 14px; display:flex; flex-direction:column; justify-content:center}
+  .rail .name{font-weight:600; font-size:13.5px; color:var(--ink); display:flex; align-items:center; gap:7px; letter-spacing:.01em}
+  .rail .meta{font-size:11px; color:var(--ink-soft); margin-top:5px; display:flex; align-items:center; gap:7px; font-family:var(--mono)}
+  .rail .code{background:var(--paper-2); border:1px solid var(--line); border-radius:5px; padding:1px 6px}
+  .beds{letter-spacing:1px; color:var(--sea); opacity:.55}
+  .flag{font-size:12px}
+  .flag.cf{color:var(--coral)} .flag.ok{color:var(--sun-deep)}
+  .track{position:relative; flex:1}
+  .track .gl{position:absolute; top:0; bottom:0; width:1px; background:var(--line-soft)}
+  .track .we{position:absolute; top:0; bottom:0; background:#F7F3E9}
+  .track .cf{position:absolute; top:0; bottom:0; background:rgba(194,70,50,.13); border-top:2px solid var(--coral); border-bottom:2px solid var(--coral)}
+  .track .cfok{position:absolute; top:0; bottom:0; background:rgba(227,154,46,.12); border-top:2px dashed var(--sun-deep); border-bottom:2px dashed var(--sun-deep)}
+  .bar{position:absolute; height:26px; border-radius:8px; padding:0 9px; display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; cursor:pointer; overflow:hidden; white-space:nowrap; border:1px solid rgba(0,0,0,.08); transition:.1s}
+  .bar:hover{filter:brightness(.97); transform:translateY(-1px); box-shadow:0 2px 7px rgba(34,50,64,.18); z-index:5}
+  .bar.clipL{border-top-left-radius:0; border-bottom-left-radius:0; border-left:3px dotted rgba(0,0,0,.25)}
+  .bar.clipR{border-top-right-radius:0; border-bottom-right-radius:0; border-right:3px dotted rgba(0,0,0,.25)}
+  .bar .p{font-family:var(--mono); font-weight:700; opacity:.7; font-size:10px}
+  .empty-note{padding:44px; text-align:center; color:var(--ink-soft); font-size:14px}
+
+  .table{width:100%; border-collapse:collapse; font-size:13.5px; background:#fff}
+  .table th{position:sticky; top:0; background:var(--paper-2); text-align:left; padding:11px 12px; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); border-bottom:1px solid var(--line); cursor:pointer; white-space:nowrap}
+  .table th:hover{color:var(--sea-deep)}
+  .table td{padding:10px 12px; border-bottom:1px solid var(--line-soft)}
+  .table tr:hover td{background:var(--paper)}
+  .swatch{width:9px;height:16px;border-radius:3px;display:inline-block;vertical-align:-3px;margin-right:8px}
+  .roompill{font-family:var(--mono); font-size:11px; background:var(--paper-2); border:1px solid var(--line); border-radius:5px; padding:1px 6px; color:var(--ink-soft)}
+  .tag-cf{color:var(--coral); font-weight:600; font-size:11.5px}
+  .tag-ok{color:var(--sun-deep); font-weight:600; font-size:11.5px}
+  .rowact{display:inline-flex; gap:4px}
+  .iconbtn{border:1px solid var(--line); background:#fff; border-radius:7px; padding:5px 7px; color:var(--ink-soft)}
+  .iconbtn:hover{border-color:var(--sea); color:var(--sea-deep)}
+  .iconbtn.del:hover{border-color:var(--coral); color:var(--coral)}
+
+  /* distribuir */
+  .dist{padding:6px 2px}
+  .dist .cardbox{background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); padding:16px 18px; margin-bottom:16px}
+  .dist h3{font-family:var(--serif); font-size:17px; color:var(--sea-deep); margin:0 0 3px; display:flex; align-items:center; gap:8px}
+  .dist .hint{font-size:12.5px; color:var(--ink-soft); margin:0 0 12px}
+  .ruletbl{width:100%; border-collapse:collapse; font-size:13.5px}
+  .ruletbl td{padding:5px 6px 5px 0; vertical-align:middle}
+  .ruletbl input,.ruletbl select{width:100%; border:1px solid var(--line); border-radius:8px; padding:7px 9px; background:#fff}
+  .ruletbl input:focus,.ruletbl select:focus{outline:none; border-color:var(--sea); box-shadow:0 0 0 3px var(--sea-tint)}
+  .ruletbl .gcol{width:52%} .ruletbl .rcol{width:40%} .ruletbl .xcol{width:8%; text-align:right}
+  .distactions{display:flex; gap:10px; align-items:center; margin:4px 0 18px; flex-wrap:wrap}
+  .proposal{background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); overflow:hidden}
+  .proposal .ph{padding:14px 18px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:14px; flex-wrap:wrap; background:var(--paper-2)}
+  .proposal .stat{font-size:13px; color:var(--ink-soft)} .proposal .stat b{color:var(--ink)}
+  .parrow{color:var(--ink-faint); margin:0 6px}
+  .chg{color:var(--sea-deep); font-weight:600}
+  .badge{font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; border-radius:6px; padding:1px 7px}
+  .availability-form{display:grid;grid-template-columns:minmax(210px,1.4fr) repeat(3,minmax(130px,.7fr)) auto;gap:10px;align-items:end}
+  .availability-form .field{margin:0}
+  .availability-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:12px;margin-top:14px}
+  .roomcard{border:1px solid var(--line);border-radius:11px;padding:13px 14px;background:#fff;box-shadow:0 2px 10px rgba(34,50,64,.05)}
+  .roomcard h4{font-family:var(--serif);font-size:16px;color:var(--sea-deep);margin:0 0 4px;display:flex;justify-content:space-between;gap:8px}
+  .roomcard .roommeta{font-size:12px;color:var(--ink-soft);margin-bottom:9px}
+  .roomcard .freeperiod{font-family:var(--mono);font-size:12px;color:var(--vina-deep);margin:5px 0}
+  .roomcard .prefmark{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#3B6D11;background:#EAF3DE;border-radius:5px;padding:2px 6px}
+  .availability-empty{padding:22px;border:1px dashed var(--line);border-radius:10px;color:var(--ink-soft);text-align:center;margin-top:14px}
+  .guest-helper{font-size:11.5px;color:var(--ink-soft);margin-top:5px}
+  @media(max-width:850px){.availability-form{grid-template-columns:1fr 1fr}.availability-form .wide{grid-column:1/-1}}
+  .b-fija{background:var(--sea-tint); color:var(--sea-deep)}
+  .b-pref{background:#EAF3DE; color:#3B6D11}
+  .b-auto{background:var(--paper-2); color:var(--ink-soft)}
+  .b-ov{background:var(--coral-tint); color:var(--coral)}
+  .b-manual{background:#E9E2F5; color:#5A3F82}
+  .planroom{min-width:180px; border:1px solid var(--line); border-radius:8px; padding:6px 8px; background:#fff; color:var(--ink)}
+  .planroom:focus{outline:none; border-color:var(--sea); box-shadow:0 0 0 3px var(--sea-tint)}
+  .segment-actions{display:inline-flex; gap:5px; margin-left:7px; vertical-align:middle}
+  .prefgrid{display:grid; grid-template-columns:1fr; gap:16px}
+  .modepill{font-size:11px; color:var(--ink-soft)}
+  .plan-note{padding:10px 18px; font-size:12.5px; color:var(--ink-soft); border-top:1px solid var(--line-soft); background:var(--paper)}
+
+
+  .prefs-scroll{overflow:auto;max-height:520px;border:1px solid var(--line);border-radius:10px}
+  .persontbl{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;min-width:980px}
+  .persontbl th{position:sticky;top:0;z-index:2;background:var(--paper-2);padding:8px 9px;text-align:left;color:var(--ink-soft);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--line)}
+  .persontbl td{padding:6px 7px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
+  .persontbl input,.persontbl select{width:100%;border:1px solid var(--line);border-radius:7px;padding:6px 7px;background:#fff;font-size:12.5px}
+  .persontbl .smallcol{width:120px}.persontbl .typecol{width:105px}.persontbl .roomcol{width:190px}.persontbl .delcol{width:42px;text-align:center}
+  .profilemeta{font-size:11px;color:var(--ink-soft);margin:3px 0 0 18px}
+  .branchpill{display:inline-block;background:var(--paper-2);border:1px solid var(--line);border-radius:5px;padding:0 5px;margin-right:4px}
+
+  .total-row{position:sticky;bottom:0;z-index:18;background:var(--paper-3);border-top:2px solid var(--sea-deep);font-weight:700}
+  .total-row .rail{background:var(--paper-3);color:var(--sea-deep)}
+  .total-track{display:flex;height:44px;background:var(--paper-2)}
+  .total-cell{width:var(--colw);flex:none;border-left:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;color:var(--sea-deep)}
+  .total-cell.we{background:#E9E1CC}
+  .meal-table{width:100%;border-collapse:collapse;background:#fff;font-size:13px}
+  .meal-table th{position:sticky;top:0;background:var(--paper-2);padding:10px;text-align:left;border-bottom:1px solid var(--line);font-size:11px;text-transform:uppercase;color:var(--ink-soft)}
+  .meal-table td{padding:9px 10px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .meal-table .num{font-family:var(--mono);font-weight:700;text-align:center;font-size:15px}
+  .meal-names{font-size:12px;color:var(--ink-soft);max-width:420px}
+  .meal-config{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+  .meal-config .field{margin:0;min-width:190px}
+  .availability-days{margin-top:8px;font-family:var(--mono);font-size:11px;color:var(--ink-soft);line-height:1.55}
+  .availability-days b{color:var(--ink)}
+  .roomcard.compatible{border-left:4px solid var(--vina)}
+  .roomcard.exception{border-left:4px solid var(--coral)}
+  .meal-only-fields{display:none}
+  .meal-only-fields.show{display:block}
+  .field-note{font-size:11px;color:var(--ink-soft);margin-top:4px}
+
+  .overlay{position:fixed; inset:0; background:rgba(34,50,64,.4); z-index:100; display:none; align-items:flex-start; justify-content:center; padding:5vh 16px; overflow:auto}
+  .overlay.show{display:flex}
+  .modal{background:var(--paper); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,.28); width:100%; max-width:460px; overflow:hidden}
+  .modal h2{font-family:var(--serif); font-size:20px; color:var(--sea-deep); margin:0; padding:18px 22px 14px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:10px}
+  .form{padding:18px 22px}
+  .field{margin-bottom:14px}
+  .field label{display:block; font-size:12px; font-weight:600; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.04em; margin-bottom:5px}
+  .field input,.field select,.field textarea{width:100%; border:1px solid var(--line); border-radius:9px; padding:9px 11px; background:#fff}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none; border-color:var(--sea); box-shadow:0 0 0 3px var(--sea-tint)}
+  .field textarea{resize:vertical; min-height:52px}
+  .two{display:flex; gap:12px}
+  .two .field{flex:1}
+  .cfwarn{background:var(--coral-tint); border:1px solid #E7B7AC; border-radius:9px; padding:10px 12px; font-size:12.5px; color:#7A2A1B; margin-bottom:14px; display:none}
+  .cfwarn.show{display:block}
+  .foot{display:flex; align-items:center; gap:10px; padding:14px 22px 20px}
+  .foot .spacer{flex:1}
+  .stepper{display:flex; align-items:center; border:1px solid var(--line); border-radius:9px; overflow:hidden; background:#fff; width:fit-content}
+  .stepper button{border:0; background:var(--paper-2); width:34px; height:38px; font-size:18px; color:var(--sea-deep)}
+  .stepper button:hover{background:var(--sea); color:#fff}
+  .stepper input{border:0; width:48px; text-align:center; font-weight:600; -moz-appearance:textfield}
+  .stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none}
+
+  .menu{position:relative}
+  .menu .pop{position:absolute; right:0; top:calc(100% + 6px); background:#fff; border:1px solid var(--line); border-radius:11px; box-shadow:var(--shadow); padding:6px; min-width:220px; display:none; z-index:70}
+  .menu.open .pop{display:block}
+  .menu .pop button{display:flex; align-items:center; gap:9px; width:100%; border:0; background:none; text-align:left; padding:9px 11px; border-radius:8px; font-size:13.5px; color:var(--ink)}
+  .menu .pop button:hover{background:var(--paper-2)}
+  .menu .pop hr{border:0; border-top:1px solid var(--line-soft); margin:5px 4px}
+  .menu .pop .danger{color:var(--coral)}
+
+
+  /* Panel Datos: diálogo en escritorio y hoja inferior en móvil */
+  .cloud-dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--ink-faint);box-shadow:0 0 0 2px rgba(255,255,255,.55)}
+  .cloud-dot.online{background:#5D8B3D}.cloud-dot.connecting{background:var(--sun)}.cloud-dot.error{background:var(--coral)}
+  .data-overlay{position:fixed;inset:0;z-index:180;background:rgba(34,50,64,.48);display:none;align-items:center;justify-content:center;padding:18px}
+  .data-overlay.show{display:flex}
+  .data-sheet{width:min(720px,100%);max-height:min(88vh,820px);overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:17px;box-shadow:0 24px 70px rgba(0,0,0,.32)}
+  .data-head{position:sticky;top:0;z-index:3;background:var(--paper);display:flex;align-items:center;gap:12px;padding:17px 19px;border-bottom:1px solid var(--line)}
+  .data-head h2{font-family:var(--serif);font-size:21px;color:var(--sea-deep);margin:0}
+  .data-body{padding:17px 19px 22px}
+  .data-section{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 15px;margin-bottom:13px}
+  .data-section h3{font-family:var(--serif);font-size:17px;color:var(--sea-deep);margin:0 0 4px}
+  .data-section .hint{font-size:12.5px;color:var(--ink-soft);margin:0 0 11px}
+  .data-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .data-actions .btn{justify-content:flex-start;width:100%}
+  .cloud-status{display:flex;align-items:flex-start;gap:10px;border-radius:9px;padding:10px 11px;background:var(--paper-2);font-size:13px;margin-bottom:11px}
+  .cloud-status strong{display:block;color:var(--ink)}
+  .cloud-status small{display:block;color:var(--ink-soft);margin-top:2px;line-height:1.35}
+  .cloud-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .cloud-grid .wide{grid-column:1/-1}
+  .cloud-grid label{display:block;font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+  .cloud-grid input,.cloud-grid textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 9px;background:#fff}
+  .cloud-grid textarea{min-height:105px;resize:vertical;font-family:var(--mono);font-size:11.5px}
+  .cloud-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .cloud-rules{white-space:pre-wrap;word-break:break-word;background:#2F2A22;color:#F7F1E4;border-radius:9px;padding:11px;font-family:var(--mono);font-size:11px;max-height:210px;overflow:auto}
+  .cloud-warn{background:var(--sun-tint);border-left:4px solid var(--sun);padding:9px 11px;border-radius:7px;font-size:12px;color:var(--sun-deep);margin-top:10px}
+  .close-data{margin-left:auto;border:1px solid var(--line);background:#fff;border-radius:8px;width:34px;height:34px;font-size:20px;color:var(--ink-soft)}
+  body.data-open{overflow:hidden}
+  @media(max-width:640px){
+    .data-overlay{align-items:flex-end;padding:0}
+    .data-sheet{width:100%;max-height:92vh;border-radius:19px 19px 0 0;border-bottom:0}
+    .data-head{padding:14px 16px}
+    .data-body{padding:13px 14px 22px}
+    .data-actions{grid-template-columns:1fr}
+    .cloud-grid{grid-template-columns:1fr}
+    .cloud-grid .wide{grid-column:auto}
+    .cloud-buttons .btn{flex:1;justify-content:center}
+  }
+
+  .toast{position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--sea-deep); color:#fff; padding:11px 18px; border-radius:10px; font-size:13.5px; box-shadow:0 8px 24px rgba(0,0,0,.25); opacity:0; transition:.25s; z-index:120; pointer-events:none}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  @media (max-width:640px){ .wrap{padding:12px} .top{padding:10px 14px} .banner{margin:10px 14px 0} .legend{display:none} :root{--rail:140px}
+    .hero{height:128px} .house{font-size:32px} .house .the{font-size:21px} .herocontent{padding:14px 16px} .place{display:none} }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <svg class="scene" viewBox="0 0 1200 168" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <rect x="0" y="0" width="1200" height="128" fill="#E9E0C8"/>
+    <rect x="0" y="60" width="1200" height="68" fill="#ECE3CC"/>
+    <g fill="#7C8A4E" opacity=".45"><ellipse cx="330" cy="118" rx="90" ry="26"/><ellipse cx="600" cy="120" rx="120" ry="24"/><ellipse cx="1120" cy="118" rx="120" ry="26"/></g>
+    <g opacity=".7"><line x1="1150" y1="40" x2="1150" y2="120" stroke="#8A7A5C" stroke-width="2.5"/><line x1="1136" y1="52" x2="1164" y2="52" stroke="#8A7A5C" stroke-width="2"/><line x1="1140" y1="60" x2="1160" y2="60" stroke="#8A7A5C" stroke-width="2"/><line x1="1058" y1="52" x2="1150" y2="52" stroke="#8A7A5C" stroke-width="1"/></g>
+    <g><rect x="112" y="66" width="9" height="56" fill="#6E4A2A"/><circle cx="116" cy="56" r="42" fill="#66763A"/><circle cx="152" cy="66" r="30" fill="#5F6E35"/><circle cx="86" cy="72" r="24" fill="#6B7B3A"/></g>
+    <g fill="#7C8A4E"><ellipse cx="466" cy="72" rx="11" ry="54"/><ellipse cx="494" cy="80" rx="9" ry="44"/><ellipse cx="512" cy="86" rx="8" ry="36"/></g>
+    <rect x="0" y="120" width="1200" height="48" fill="#D6AE52"/>
+    <line x1="0" y1="120" x2="1200" y2="120" stroke="#B98A2E" stroke-width="1.5" opacity=".6"/>
+    <g stroke="#B0862B" stroke-width="1" opacity=".5"><line x1="60" y1="140" x2="66" y2="132"/><line x1="150" y1="150" x2="156" y2="142"/><line x1="240" y1="138" x2="246" y2="130"/><line x1="360" y1="152" x2="366" y2="144"/><line x1="470" y1="140" x2="476" y2="132"/><line x1="1000" y1="150" x2="1006" y2="142"/><line x1="1110" y1="140" x2="1116" y2="132"/></g>
+    <g>
+      <polygon points="554,86 578,74 674,74 698,86" fill="#A9502C"/>
+      <rect x="560" y="84" width="132" height="36" fill="#F3ECDD"/>
+      <rect x="560" y="112" width="132" height="9" fill="#C89A3C"/>
+      <rect x="600" y="90" width="30" height="30" fill="#4E5B27"/>
+    </g>
+    <g>
+      <polygon points="682,66 716,48 1026,48 1060,66" fill="#B4552F"/>
+      <line x1="716" y1="48" x2="1026" y2="48" stroke="#8A3E20" stroke-width="2"/>
+      <rect x="690" y="66" width="362" height="54" fill="#F7F1E4"/>
+      <rect x="690" y="108" width="362" height="12" fill="#C89A3C"/>
+      <rect x="998" y="40" width="11" height="20" fill="#EAE1CE"/><rect x="996" y="38" width="15" height="4" fill="#B4552F"/>
+      <g fill="#5F5443"><rect x="744" y="78" width="18" height="22"/><rect x="960" y="78" width="18" height="22"/><rect x="1010" y="80" width="16" height="20"/></g>
+      <g stroke="#8A3E20" stroke-width="2"><line x1="743" y1="76" x2="763" y2="76"/><line x1="959" y1="76" x2="979" y2="76"/></g>
+      <path d="M857,120 L857,96 a13,13 0 0 1 26,0 L883,120 Z" fill="#7A3216"/>
+      <rect x="866" y="104" width="8" height="16" fill="#C89A3C" opacity=".5"/>
+    </g>
+    <g>
+      <polygon points="828,34 872,14 916,34" fill="#B4552F"/>
+      <rect x="838" y="34" width="64" height="34" fill="#F7F1E4"/>
+      <rect x="858" y="42" width="24" height="18" fill="#5F5443"/>
+    </g>
+    <g fill="#9C6B3E" stroke="#6E4423" stroke-width="1.5">
+      <g transform="translate(712,104)"><ellipse cx="0" cy="0" rx="12" ry="16"/><rect x="-5" y="-20" width="10" height="8"/><ellipse cx="0" cy="-20" rx="6" ry="2"/></g>
+      <g transform="translate(746,105)"><ellipse cx="0" cy="0" rx="12" ry="16"/><rect x="-5" y="-20" width="10" height="8"/><ellipse cx="0" cy="-20" rx="6" ry="2"/></g>
+      <g transform="translate(780,104)"><ellipse cx="0" cy="0" rx="12" ry="16"/><rect x="-5" y="-20" width="10" height="8"/><ellipse cx="0" cy="-20" rx="6" ry="2"/></g>
+      <g transform="translate(908,105)"><ellipse cx="0" cy="0" rx="12" ry="16"/><rect x="-5" y="-20" width="10" height="8"/><ellipse cx="0" cy="-20" rx="6" ry="2"/></g>
+      <g transform="translate(942,104)"><ellipse cx="0" cy="0" rx="12" ry="16"/><rect x="-5" y="-20" width="10" height="8"/><ellipse cx="0" cy="-20" rx="6" ry="2"/></g>
+      <g transform="translate(976,105)"><ellipse cx="0" cy="0" rx="12" ry="16"/><rect x="-5" y="-20" width="10" height="8"/><ellipse cx="0" cy="-20" rx="6" ry="2"/></g>
+    </g>
+  </svg>
+  <div class="heroveil"></div>
+  <div class="herocontent">
+    <div class="herotitle">
+      <h1 class="house"><span class="the">El</span>Taray</h1>
+      <div class="subtitle">Reservas · verano de <select id="yearSel" class="yearsel" aria-label="Año"></select></div>
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="addBtn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>Nueva reserva</button>
+      <button class="btn ghost" id="findBtn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>Buscar huecos</button>
+      <button class="btn ghost" id="menuBtn" aria-label="Datos, copias y nube"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>Datos <span class="cloud-dot" id="cloudDot" title="Modo local"></span></button>
+      <input type="file" id="fileIn" accept=".json,application/json" style="display:none">
+    </div>
+  </div>
+</div>
+
+<div class="top">
+  <div class="toolbar">
+    <div class="seg" id="viewSeg">
+      <button data-view="timeline" class="on">Calendario</button>
+      <button data-view="list">Lista</button>
+      <button data-view="huecos">Huecos</button>
+      <button data-view="comidas">Comidas</button>
+      <button data-view="distribuir">Distribuir</button>
+      <button data-view="preferencias">Preferencias</button>
+    </div>
+    <div class="seg" id="monthSeg">
+      <button data-m="jul">Julio</button>
+      <button data-m="ago">Agosto</button>
+      <button data-m="all" class="on">Todo</button>
+    </div>
+    <div class="search">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+      <input id="search" placeholder="Buscar huésped…">
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--sea)"></span> personas en casa</span>
+      <span><span class="dot" style="background:rgba(165,56,42,.55)"></span> sin sitio</span>
+      <span><span class="dot" style="background:rgba(185,138,46,.6)"></span> apretón aceptado</span>
+    </div>
+  </div>
+</div>
+
+<div id="banner"></div>
+
+<div class="wrap">
+  <div class="scroll" id="scroll"><div id="view"></div></div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <h2 id="mTitle"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="var(--sun)" stroke-width="2.2"><path d="M3 9l9-6 9 6v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 21V12h6v9"/></svg><span id="mTitleTxt">Nueva reserva</span></h2>
+    <div class="form">
+      <div class="field"><label>Huésped habitual</label><select id="fGuestSel"><option value="">— Escribir un nombre nuevo —</option></select><div class="guest-helper">Al elegir una persona de la base se aplican automáticamente su rama, tipo, restricciones y preferencias.</div></div>
+      <div class="field"><label>Nombre de la reserva</label><input id="fHuesped" list="guestList" placeholder="p. ej. Tía Dulce y Juan Carlos" autocomplete="off"></div>
+      <div class="field"><label>Tipo</label><select id="fTipo"><option value="alojamiento">Alojamiento</option><option value="comidas">Solo comidas · no ocupa habitación</option></select></div>
+      <div class="field" id="roomField"><label>Habitación</label><select id="fHab"></select></div>
+      <div class="two">
+        <div class="field"><label id="fInLabel">Entrada</label><input type="date" id="fIn"></div>
+        <div class="field" id="outDateField"><label>Salida</label><input type="date" id="fOut"></div>
+      </div>
+      <div class="two" id="stayTimeFields">
+        <div class="field"><label>Hora de entrada</label><input type="time" id="fInTime" value="14:00"><div class="field-note">Hasta la hora de corte, incluida, cuenta para comida.</div></div>
+        <div class="field"><label>Hora de salida</label><input type="time" id="fOutTime" value="12:00"><div class="field-note">Si sale a la hora de corte o después, cuenta para comida ese día.</div></div>
+      </div>
+      <div class="meal-only-fields" id="mealOnlyFields"><div class="field"><label>Asistencia</label><select id="fMealOnly"><option value="comida">Solo comida</option><option value="cena">Solo cena</option><option value="ambas">Comida y cena</option></select><div class="field-note">No ocupa habitación ni aparece en el reparto de dormitorios.</div></div></div>
+      <div class="field"><label>Personas</label><div class="stepper"><button type="button" id="pMinus">−</button><input id="fPer" type="number" min="1" value="2"><button type="button" id="pPlus">+</button></div></div>
+      <div class="field"><label>Notas (opcional)</label><textarea id="fNotas" placeholder="Alergias, hora de llegada, coche…"></textarea></div>
+      <div class="cfwarn" id="cfWarn"></div>
+    </div>
+    <div class="foot">
+      <button class="btn ghost del" id="delBtn" style="display:none; color:var(--coral); border-color:#E7B7AC">Eliminar</button>
+      <div class="spacer"></div>
+      <button class="btn ghost" id="cancelBtn">Cancelar</button>
+      <button class="btn primary" id="saveBtn">Guardar</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="data-overlay" id="dataOverlay" role="dialog" aria-modal="true" aria-labelledby="dataTitle">
+  <div class="data-sheet">
+    <div class="data-head">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="var(--sea-deep)" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+      <h2 id="dataTitle">Datos y sincronización</h2>
+      <button class="close-data" id="closeDataBtn" aria-label="Cerrar">×</button>
+    </div>
+    <div class="data-body">
+      <section class="data-section">
+        <h3>Copias y calendario</h3>
+        <p class="hint">Las copias JSON siguen siendo el respaldo recomendado aunque uses la nube.</p>
+        <div class="data-actions">
+          <button class="btn" id="expJson">Copia de seguridad (.json)</button>
+          <button class="btn" id="expCsv">Exportar tabla (.csv)</button>
+          <button class="btn" id="impBtn">Restaurar copia (.json)</button>
+          <button class="btn" id="clearCalendarBtn" style="color:var(--coral);border-color:#E7B7AC">Vaciar calendario de <span id="clearYearLabel"></span></button>
+          <button class="btn" id="resetBtn" style="color:var(--coral);border-color:#E7B7AC;grid-column:1/-1">Volver a los datos originales</button>
+        </div>
+      </section>
+
+      <section class="data-section">
+        <h3>Nube compartida · Firebase</h3>
+        <p class="hint">Todas las personas usan el mismo enlace, correo compartido y contraseña. La contraseña nunca se guarda dentro del HTML.</p>
+        <div class="cloud-status" id="cloudStatusBox">
+          <span class="cloud-dot" id="cloudStatusDot"></span>
+          <div><strong id="cloudStatusTitle">Modo local</strong><small id="cloudStatusText">Los cambios solo se guardan en este navegador.</small></div>
+        </div>
+        <div class="cloud-grid">
+          <div class="wide"><label>Configuración Firebase</label><textarea id="firebaseConfigInput" placeholder='Pega aquí el bloque firebaseConfig de la consola de Firebase'></textarea></div>
+          <div><label>Correo compartido</label><input type="email" id="cloudEmail" placeholder="familia@ejemplo.com" autocomplete="username"></div>
+          <div><label>Espacio compartido</label><input id="cloudWorkspace" value="el-taray" placeholder="el-taray"></div>
+          <div class="wide"><label>Contraseña compartida</label><input type="password" id="cloudPassword" placeholder="Solo se usa para iniciar sesión" autocomplete="current-password"></div>
+        </div>
+        <div class="cloud-buttons">
+          <button class="btn" id="saveCloudConfig">Guardar configuración</button>
+          <button class="btn primary" id="cloudLogin">Conectar y sincronizar</button>
+          <button class="btn ghost" id="cloudLogout" style="display:none">Cerrar sesión</button>
+          <button class="btn ghost" id="clearCloudConfig">Quitar nube de este navegador</button>
+        </div>
+        <div class="cloud-warn">La primera persona que conecte un espacio vacío subirá los datos que tenga en su navegador. Haz primero una copia JSON y empieza desde la versión que consideres correcta.</div>
+      </section>
+
+      <section class="data-section">
+        <h3>Reglas de seguridad de Firestore</h3>
+        <p class="hint">Copia estas reglas en Firestore → Reglas. Se actualizan con el correo y el nombre de espacio escritos arriba.</p>
+        <pre class="cloud-rules" id="cloudRulesPreview"></pre>
+        <div class="cloud-buttons"><button class="btn sm" id="copyCloudRules">Copiar reglas</button></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<datalist id="guestList"></datalist>
+<div class="toast" id="toast"></div>
+
+<script>
+const SEED = {"rooms": [{"codigo": "PA01", "tipo": "Standard", "capacidad": 4, "nombre": "MURCIANOS"}, {"codigo": "PA02", "tipo": "Matrimonio", "capacidad": 2, "nombre": "BISA"}, {"codigo": "PA03", "tipo": "Standard", "capacidad": 4, "nombre": "MADRILEÑOS"}, {"codigo": "PA04", "tipo": "Matrimonio", "capacidad": 2, "nombre": "LOLIN"}, {"codigo": "PA05", "tipo": "Matrimonio", "capacidad": 3, "nombre": "ANGELITA"}, {"codigo": "PA06", "tipo": "Matrimonio", "capacidad": 2, "nombre": "DULCE"}, {"codigo": "PA07", "tipo": "Matrimonio", "capacidad": 2, "nombre": "SÁNCHEZ"}, {"codigo": "PA08", "tipo": "Standard", "capacidad": 5, "nombre": "MUCHACHAS"}, {"codigo": "PA09", "tipo": "Standard", "capacidad": 4, "nombre": "PASO"}, {"codigo": "PA10", "tipo": "Standard", "capacidad": 6, "nombre": "NIÑAS"}, {"codigo": "PA11", "tipo": "Matrimonio", "capacidad": 2, "nombre": "LOSADA"}, {"codigo": "PA12", "tipo": "Matrimonio", "capacidad": 2, "nombre": "ANTIGUA ANGELITA"}, {"codigo": "PA13", "tipo": "Matrimonio", "capacidad": 2, "nombre": "ANTIGUA DULCE"}, {"codigo": "PB01", "tipo": "Matrimonio", "capacidad": 2, "nombre": "BEATRIZ"}, {"codigo": "PB02", "tipo": "Matrimonio", "capacidad": 2, "nombre": "MIGUEL"}, {"codigo": "PB03", "tipo": "Matrimonio", "capacidad": 2, "nombre": "MONCHO"}], "reservations": [{"id": 1, "huesped": "Dulce Y Oscar", "habitacion": "PA01", "entrada": "2026-07-10", "salida": "2026-07-12", "personas": 2, "notas": ""}, {"id": 2, "huesped": "Dulcecita Y Oscarín", "habitacion": "PA08", "entrada": "2026-07-10", "salida": "2026-08-10", "personas": 2, "notas": ""}, {"id": 3, "huesped": "Tío Moncho", "habitacion": "PB03", "entrada": "2026-07-10", "salida": "2026-08-17", "personas": 1, "notas": ""}, {"id": 4, "huesped": "Tía Dulce y Juan Carlos", "habitacion": "PA06", "entrada": "2026-07-10", "salida": "2026-08-31", "personas": 2, "notas": ""}, {"id": 5, "huesped": "Marta Y Javi", "habitacion": "PA02", "entrada": "2026-07-12", "salida": "2026-08-10", "personas": 2, "notas": ""}, {"id": 6, "huesped": "Livia Y Miguel", "habitacion": "PA08", "entrada": "2026-07-12", "salida": "2026-08-10", "personas": 2, "notas": ""}, {"id": 7, "huesped": "Tía LOLIN", "habitacion": "PA04", "entrada": "2026-07-20", "salida": "2026-08-31", "personas": 1, "notas": ""}, {"id": 8, "huesped": "Tía Angelita", "habitacion": "PA05", "entrada": "2026-07-20", "salida": "2026-08-31", "personas": 1, "notas": ""}, {"id": 9, "huesped": "Tío José María y Tía Beatriz", "habitacion": "PB01", "entrada": "2026-07-26", "salida": "2026-08-22", "personas": 2, "notas": ""}, {"id": 10, "huesped": "Claudia", "habitacion": "PB02", "entrada": "2026-07-26", "salida": "2026-08-05", "personas": 1, "notas": ""}, {"id": 11, "huesped": "Santiago y Laura", "habitacion": "PA07", "entrada": "2026-08-02", "salida": "2026-08-07", "personas": 2, "notas": ""}, {"id": 12, "huesped": "James", "habitacion": "PA10", "entrada": "2026-08-02", "salida": "2026-08-07", "personas": 1, "notas": ""}, {"id": 13, "huesped": "Claudia", "habitacion": "PA13", "entrada": "2026-08-06", "salida": "2026-08-11", "personas": 1, "notas": ""}, {"id": 14, "huesped": "Marta Doval", "habitacion": "PA11", "entrada": "2026-08-06", "salida": "2026-08-11", "personas": 1, "notas": ""}, {"id": 15, "huesped": "Enma", "habitacion": "PA10", "entrada": "2026-08-06", "salida": "2026-08-11", "personas": 1, "notas": ""}, {"id": 16, "huesped": "Tío Miguel y Tía Pepita", "habitacion": "PB02", "entrada": "2026-08-06", "salida": "2026-08-11", "personas": 2, "notas": ""}, {"id": 17, "huesped": "Juan", "habitacion": "PA12", "entrada": "2026-08-07", "salida": "2026-08-09", "personas": 1, "notas": ""}, {"id": 18, "huesped": "Dina", "habitacion": "PA07", "entrada": "2026-08-07", "salida": "2026-08-09", "personas": 1, "notas": ""}, {"id": 19, "huesped": "Claudia", "habitacion": "PB02", "entrada": "2026-08-11", "salida": "2026-08-22", "personas": 1, "notas": ""}, {"id": 20, "huesped": "José María Soto", "habitacion": "PA02", "entrada": "2026-08-13", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 21, "huesped": "Quique Doval", "habitacion": "PA07", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 22, "huesped": "Ruth", "habitacion": "PA09", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 23, "huesped": "Pablo", "habitacion": "PA10", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 24, "huesped": "Alfonso", "habitacion": "PA10", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 25, "huesped": "Gonzalo", "habitacion": "PA10", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 26, "huesped": "Jaime", "habitacion": "PA10", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 27, "huesped": "Carlota", "habitacion": "PA09", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 28, "huesped": "Pilar", "habitacion": "PA09", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 29, "huesped": "Beatriz y Jaime", "habitacion": "PA11", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 2, "notas": ""}, {"id": 30, "huesped": "Irene", "habitacion": "PA09", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 31, "huesped": "Jorge", "habitacion": "PA10", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 32, "huesped": "Sole", "habitacion": "PA01", "entrada": "2026-08-16", "salida": "2026-08-28", "personas": 1, "notas": ""}, {"id": 33, "huesped": "Tere y Víctor", "habitacion": "PA12", "entrada": "2026-08-17", "salida": "2026-08-24", "personas": 2, "notas": ""}, {"id": 34, "huesped": "Carmen", "habitacion": "PA08", "entrada": "2026-08-17", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 35, "huesped": "Víctor", "habitacion": "PA08", "entrada": "2026-08-17", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 36, "huesped": "Miguel y Guille", "habitacion": "PA03", "entrada": "2026-08-17", "salida": "2026-08-23", "personas": 2, "notas": ""}, {"id": 37, "huesped": "María", "habitacion": "PA01", "entrada": "2026-08-17", "salida": "2026-08-23", "personas": 1, "notas": ""}, {"id": 38, "huesped": "María y Sergio", "habitacion": "PA01", "entrada": "2026-08-17", "salida": "2026-08-27", "personas": 2, "notas": ""}, {"id": 39, "huesped": "Amparo y José", "habitacion": "PB03", "entrada": "2026-08-17", "salida": "2026-08-24", "personas": 2, "notas": ""}, {"id": 40, "huesped": "Hugo", "habitacion": "PA10", "entrada": "2026-08-17", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 41, "huesped": "Eric", "habitacion": "PA08", "entrada": "2026-08-17", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 42, "huesped": "Gonzalo Doval", "habitacion": "PA07", "entrada": "2026-08-17", "salida": "2026-08-23", "personas": 1, "notas": ""}, {"id": 43, "huesped": "Gustavo y Roció", "habitacion": "PA13", "entrada": "2026-08-18", "salida": "2026-08-28", "personas": 2, "notas": ""}, {"id": 44, "huesped": "María, lía, Iría", "habitacion": "PA08", "entrada": "2026-08-18", "salida": "2026-08-28", "personas": 3, "notas": ""}, {"id": 45, "huesped": "Juan", "habitacion": "PA03", "entrada": "2026-08-21", "salida": "2026-08-22", "personas": 1, "notas": ""}, {"id": 46, "huesped": "Dulce y Oscar", "habitacion": "PA12", "entrada": "2026-08-24", "salida": "2026-08-30", "personas": 2, "notas": ""}, {"id": 47, "huesped": "Dulcecita Y Oscarín", "habitacion": "PA09", "entrada": "2026-08-24", "salida": "2026-08-30", "personas": 2, "notas": ""}], "reglas": [{"huesped": "Tío Moncho", "room": "PB03"}, {"huesped": "Tía Dulce y Juan Carlos", "room": "PA06"}, {"huesped": "Tía LOLIN", "room": "PA04"}, {"huesped": "Tía Angelita", "room": "PA05"}, {"huesped": "Tío José María y Tía Beatriz", "room": "PB01"}, {"huesped": "Tío Miguel y Tía Pepita", "room": "PB02"}], "prefs": [], "aceptados": ["PA08|2026-08-18|2026-08-23|6"]};
+const KEY = "eltaray_reservas_v4";
+const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const MESES_L = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const WD = ["D","L","M","X","J","V","S"];
+const COLW = 38;
+
+// Regla dura: los niños solo se alojan en estas cinco habitaciones.
+const CHILD_ROOM_CODES = new Set(["PA08","PA09","PA10","PA01","PA03"]);
+function isChildPerson(person){ return !!person && person.tipo==="ninos"; }
+function roomAllowedForPerson(code,person){ return !code || !isChildPerson(person) || CHILD_ROOM_CODES.has(code); }
+function childRoomsLabel(){ return "MUCHACHAS, PASO, NIÑAS, MURCIANOS o MADRILEÑOS"; }
+
+const BASE_PERSONAS = [{"nombre": "Dulce y Oscar", "aliases": ["Dulce Y Oscar"], "rama": "Romero", "tipo": "adultos", "prefs": ["PA02"]}, {"nombre": "Dulcecita y Oscarín", "aliases": ["Dulcecita Y Oscarín"], "rama": "Romero", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Tío Moncho y Tía Violeta", "aliases": ["Tío Moncho", "Tía Violeta"], "rama": "Reina", "tipo": "adultos", "prefs": ["PB03"]}, {"nombre": "Tía Dulce y Juan Carlos", "aliases": [], "rama": "Romero", "tipo": "adultos", "prefs": ["PA06"]}, {"nombre": "Marta y Javi", "aliases": ["Marta Y Javi"], "rama": "Romero", "tipo": "adultos", "prefs": ["PA13"]}, {"nombre": "Livia y Miguel", "aliases": ["Livia Y Miguel"], "rama": "Romero", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Tía Lolín", "aliases": ["Tía LOLIN", "Tía Lolin"], "rama": "García", "tipo": "adultos", "prefs": ["PA04"]}, {"nombre": "Tía Angelita", "aliases": [], "rama": "Soto", "tipo": "adultos", "prefs": ["PA05"]}, {"nombre": "Tío José María y Tía Beatriz", "aliases": ["Tía Beatriz y Tío José María"], "rama": "González", "tipo": "adultos", "prefs": ["PB01"]}, {"nombre": "Claudia", "aliases": [], "rama": "González", "tipo": "adultos", "prefs": ["PA11"]}, {"nombre": "Santiago y Laura", "aliases": [], "rama": "García", "tipo": "adultos", "prefs": ["PA07"]}, {"nombre": "James", "aliases": [], "rama": "García", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Marta Doval", "aliases": [], "rama": "Doval", "tipo": "adultos", "prefs": ["PA12"]}, {"nombre": "Enma", "aliases": ["Emma"], "rama": "Doval", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Tío Miguel y Tía Pepita", "aliases": [], "rama": "Doval", "tipo": "adultos", "prefs": ["PB02"]}, {"nombre": "Juan", "aliases": [], "rama": "González", "tipo": "adultos", "prefs": ["PA07"]}, {"nombre": "Dina", "aliases": [], "rama": "González", "tipo": "adultos", "prefs": ["PA03"]}, {"nombre": "Juan y Dina", "aliases": ["Dina y Juan"], "rama": "González", "tipo": "adultos", "prefs": []}, {"nombre": "José María Soto", "aliases": ["Jose María Soto", "José Maria Soto"], "rama": "Soto", "tipo": "adultos", "prefs": []}, {"nombre": "Quique Doval", "aliases": ["Quique"], "rama": "Sánchez", "tipo": "adultos", "prefs": ["PA07"]}, {"nombre": "Ruth", "aliases": [], "rama": "Soto", "tipo": "ninos", "prefs": ["PA09"]}, {"nombre": "Pablo", "aliases": [], "rama": "Sánchez", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Alfonso", "aliases": [], "rama": "Losada", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Gonzalo", "aliases": [], "rama": "Losada", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Jaime", "aliases": [], "rama": "Losada", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Carlota", "aliases": [], "rama": "Sánchez", "tipo": "ninos", "prefs": ["PA09"]}, {"nombre": "Pilar", "aliases": [], "rama": "Sánchez", "tipo": "ninos", "prefs": ["PA09"]}, {"nombre": "Beatriz y Jaime", "aliases": [], "rama": "Losada", "tipo": "adultos", "prefs": ["PA11"]}, {"nombre": "Irene", "aliases": [], "rama": "Losada", "tipo": "ninos", "prefs": ["PA09"]}, {"nombre": "Jorge", "aliases": [], "rama": "Losada", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Sole", "aliases": ["Soledad"], "rama": "González", "tipo": "adultos", "prefs": ["PA01"]}, {"nombre": "Tere y Víctor", "aliases": ["Tere y Victor"], "rama": "Losada", "tipo": "adultos", "prefs": ["PB02"]}, {"nombre": "Carmen", "aliases": [], "rama": "Losada", "tipo": "ninos", "prefs": ["PA08"]}, {"nombre": "Víctor", "aliases": ["Victor"], "rama": "Losada", "tipo": "ninos", "prefs": ["PA08"]}, {"nombre": "Miguel y Guille", "aliases": ["Miguel Ángel y Guille", "Miguel Angel y Guille"], "rama": "González", "tipo": "adultos", "prefs": []}, {"nombre": "María", "aliases": ["María sola"], "rama": "González", "tipo": "adultos", "prefs": ["PA01"]}, {"nombre": "María y Jorge", "aliases": [], "rama": "González", "tipo": "adultos", "prefs": []}, {"nombre": "María (hija) y Sergio", "aliases": ["María y Sergio", "Maria y Sergio"], "rama": "González", "tipo": "ninos", "prefs": ["PA01"]}, {"nombre": "Amparo y José", "aliases": ["Amparo y Jose"], "rama": "González", "tipo": "adultos", "prefs": ["PB03"]}, {"nombre": "Hugo", "aliases": [], "rama": "González", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Eric", "aliases": ["Éric"], "rama": "González", "tipo": "ninos", "prefs": ["PA08"]}, {"nombre": "Gonzalo Doval", "aliases": [], "rama": "Sánchez", "tipo": "adultos", "prefs": ["PA07"]}, {"nombre": "Gus y Rocío", "aliases": ["Gustavo y Rocío", "Gustavo y Roció", "Gus y Rocio"], "rama": "Losada", "tipo": "adultos", "prefs": ["PA12"]}, {"nombre": "María, Lía e Iría", "aliases": ["María, lía, Iría", "María, Iría, Lía", "Lía, María, Iría", "Lía, Iría, María", "Iría, María, Lía", "Iría, Lía, María"], "rama": "Losada", "tipo": "ninos", "prefs": ["PA08", "PA03"]}];
+const BASE_RAMAS = [{"nombre": "Reina", "modo": "manual"}, {"nombre": "González", "modo": "flexible"}, {"nombre": "García", "modo": "flexible"}, {"nombre": "Soto", "modo": "flexible"}, {"nombre": "Romero", "modo": "flexible"}, {"nombre": "Doval", "modo": "flexible"}, {"nombre": "Sánchez", "modo": "flexible"}, {"nombre": "Losada", "modo": "flexible"}];
+
+
+let reservationIdSequence=0;
+function newReservationId(){ return Date.now()*100+(reservationIdSequence++%100); }
+function newCloudId(){ try{ if(crypto&&crypto.randomUUID) return "r_"+crypto.randomUUID(); }catch(e){} return "r_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2); }
+
+let state = load();
+function dataYears(){ const ys=[...new Set(state.reservations.map(r=>+r.entrada.slice(0,4)))]; return ys; }
+function defaultYear(){ const ys=dataYears(); return ys.length? Math.max(...ys) : new Date().getFullYear(); }
+let ui = { view:"timeline", month:"all", search:"", sort:{col:"entrada",dir:1}, editing:null, prefill:null, plan:null, year:defaultYear(), pastePlan:null, huecos:{huesped:"",entrada:"",salida:"",personas:2} };
+function isMealOnly(r){ return (r?.tipoReserva||"alojamiento")==="comidas"; }
+function mealConfig(year=ui.year){
+  state.comidasConfig=state.comidasConfig||{};
+  if(!state.comidasConfig[year]) state.comidasConfig[year]={horaCorte:"14:00",costePersonaDia:0};
+  return state.comidasConfig[year];
+}
+function validTime(v,fallback){ return /^\d{2}:\d{2}$/.test(v||"")?v:fallback; }
+
+function load(){ try{ const raw=localStorage.getItem(KEY); if(raw) return migrate(JSON.parse(raw)); }catch(e){} return migrate(JSON.parse(JSON.stringify(SEED))); }
+function familyMode(f){
+  if(f && f.modo) return f.modo;
+  const n=norm(f?.nombre||"");
+  if(["reina","gonzalez","garcia","soto","romero","doval (miguel)"].includes(n)) return "privada";
+  if(["sanchez","losada"].includes(n)) return "flexible";
+  if(["murcianos","muchachas","paso","ninas"].includes(n)) return "grupo";
+  return "normal";
+}
+function migrate(s){
+  s.reglas=s.reglas||[]; s.prefs=s.prefs||[]; s.aceptados=s.aceptados||[];
+  if(!s.familias){
+    s.familias=[
+      {nombre:"Reina", room:"PB03", miembros:["Tío Moncho y Tía Violeta","Tío Moncho","Tía Violeta"]},
+      {nombre:"González", room:"PB01", miembros:["Tío José María y Tía Beatriz","Tía Beatriz y Tío José María"]},
+      {nombre:"García", room:"PA04", miembros:["Tía LOLIN","Tía Lolin"]},
+      {nombre:"Soto", room:"PA05", miembros:["Tía Angelita"]},
+      {nombre:"Romero", room:"PA06", miembros:["Tía Dulce y Juan Carlos"]},
+      {nombre:"Doval (Miguel)", room:"PB02", miembros:["Tío Miguel y Tía Pepita"]},
+      {nombre:"Sánchez", room:"PA07", miembros:["Quique Doval","Quique","Gonzalo Doval"]},
+      {nombre:"Losada", room:"PA11", miembros:[]},
+      {nombre:"Murcianos", room:"PA01", miembros:[]},
+      {nombre:"Bisa", room:"PA02", miembros:[]},
+      {nombre:"Madrileños", room:"PA03", miembros:[]},
+      {nombre:"Muchachas", room:"PA08", miembros:[]},
+      {nombre:"Paso", room:"PA09", miembros:[]},
+      {nombre:"Niñas", room:"PA10", miembros:[]},
+      {nombre:"Antigua Angelita", room:"PA12", miembros:[]},
+      {nombre:"Antigua Dulce", room:"PA13", miembros:[]}
+    ];
+    s.prefs=[]
+      .concat(["Alfonso","Hugo","Pablo","Livia","Oscarín","Dulcecita","Enma","Emma","Gonzalo","Jaime","Jorge","James"].map(n=>({huesped:n,room:"PA10"})))
+      .concat(["Ruth","Irene","Carlota","Pilar"].map(n=>({huesped:n,room:"PA09"})))
+      .concat(["lía","Iría","Eric","Carmen","Víctor"].map(n=>({huesped:n,room:"PA08"})));
+  }
+  s.familias.forEach(f=>{ f.modo=familyMode(f); f.miembros=f.miembros||[]; });
+  if(!Array.isArray(s.personas)||!s.personas.length) s.personas=JSON.parse(JSON.stringify(BASE_PERSONAS));
+  else s.personas=s.personas.map(p=>({nombre:p.nombre||"",aliases:Array.isArray(p.aliases)?p.aliases:[],rama:p.rama||"",tipo:p.tipo||"adultos",prefs:Array.isArray(p.prefs)?p.prefs:[]}));
+  // Las preferencias antiguas de niños hacia habitaciones de adultos se descartan.
+  s.personas.forEach(p=>{ if(p.tipo==="ninos") p.prefs=(p.prefs||[]).filter(c=>CHILD_ROOM_CODES.has(c)); });
+  if(!Array.isArray(s.ramas)||!s.ramas.length) s.ramas=JSON.parse(JSON.stringify(BASE_RAMAS));
+  if(!Array.isArray(s.compatGroups)) s.compatGroups=[];
+  else s.compatGroups=s.compatGroups.map(g=>({nombre:g.nombre||"",miembros:Array.isArray(g.miembros)?g.miembros:[],rooms:Array.isArray(g.rooms)?g.rooms:[]}));
+  const seenReservationIds=new Set();
+  s.reservations=(s.reservations||[]).map(r=>{
+    let rid=Number(r.id); if(!Number.isFinite(rid)||seenReservationIds.has(rid)) rid=newReservationId();
+    r.id=rid; seenReservationIds.add(rid);
+    if(!r.estanciaId) r.estanciaId="e"+r.id;
+    if(!r.cloudId) r.cloudId=newCloudId();
+    r.tipoReserva=r.tipoReserva||"alojamiento";
+    r.horaEntrada=validTime(r.horaEntrada,"14:00");
+    r.horaSalida=validTime(r.horaSalida,"12:00");
+    r.regimenDia=r.regimenDia||"comida";
+    if(r.tipoReserva==="comidas"){ r.habitacion=""; r.salida=r.entrada; }
+    return r;
+  });
+  if(!s.supletoria) s.supletoria={room:null};
+  if(!s.comidasConfig||typeof s.comidasConfig!=="object") s.comidasConfig={};
+  if(typeof s.pendingText!=="string") s.pendingText="";
+  return s;
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+  if(!window.__elTarayCloudApplying) window.cloudSync?.schedulePush?.();
+}
+window.getElTarayState=()=>JSON.parse(JSON.stringify(state));
+window.applyElTarayCloudState=incoming=>{
+  if(!incoming||!Array.isArray(incoming.reservations)) return;
+  const next=migrate(JSON.parse(JSON.stringify(incoming)));
+  if(JSON.stringify(next)===JSON.stringify(state)) return;
+  window.__elTarayCloudApplying=true;
+  state=next; ui.plan=null; ui.pastePlan=null;
+  try{ localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){}
+  render();
+  setTimeout(()=>{ window.__elTarayCloudApplying=false; },0);
+};
+function roomByCode(c){ return state.rooms.find(r=>r.codigo===c); }
+function effCap(c){ return (roomByCode(c)?.capacidad||0) + (state.supletoria&&state.supletoria.room===c?1:0); }
+function famForGuest(name){
+  const n=norm(name); if(!n) return null;
+  const words=s=>norm(s).split(/\s+/).filter(w=>w&&w!=="y"&&w!=="e");
+  const N=words(name);
+  const match=(member)=>{ const M=words(member); if(!M.length) return false; if(norm(member)===n) return true; if(M.every(w=>N.includes(w))) return true; if(N.length>=2 && N.every(w=>M.includes(w))) return true; return false; };
+  for(const f of state.familias){ for(const m of (f.miembros||[])){ if(match(m)) return f; } }
+  for(const f of state.familias){ if(norm(f.nombre)===n) return f; }
+  return null;
+}
+function nextId(){ return state.reservations.reduce((m,r)=>Math.max(m,r.id),0)+1; }
+function norm(s){ return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim(); }
+function namePartsSignature(s){
+  const n=norm(s).replace(/[()]/g," ");
+  const parts=n.split(/\s*(?:,|\by\b|\be\b)\s*/).map(x=>x.replace(/\bhija\b/g,"").trim()).filter(Boolean);
+  return parts.length>1?parts.sort().join("|"):"";
+}
+function personForGuest(name){
+  const n=norm(name), sig=namePartsSignature(name); if(!n) return null;
+  for(const p of (state.personas||[])){
+    const names=[p.nombre,...(p.aliases||[])];
+    if(names.some(x=>norm(x)===n)) return p;
+    if(sig && names.some(x=>namePartsSignature(x)===sig)) return p;
+  }
+  return null;
+}
+function branchMode(name){ return (state.ramas||[]).find(r=>norm(r.nombre)===norm(name))?.modo||"manual"; }
+function roomCodeFromText(value){
+  const n=norm(value); if(!n) return "";
+  const room=state.rooms.find(r=>norm(r.codigo)===n||norm(r.nombre)===n); return room?room.codigo:"";
+}
+function personPrefsLabel(p){ return (p.prefs||[]).map(c=>roomByCode(c)?.nombre||c).join(", "); }
+function guestKnownNames(name){ const p=personForGuest(name); return [name,p?.nombre,...(p?.aliases||[])].filter(Boolean).map(norm); }
+function customShareTags(name){
+  const names=guestKnownNames(name), sig=namePartsSignature(name);
+  const out=[];
+  (state.compatGroups||[]).forEach((g,i)=>{
+    const matches=(g.miembros||[]).some(m=>names.includes(norm(m))||(sig&&namePartsSignature(m)===sig));
+    if(matches) (g.rooms||[]).forEach(code=>{ if(roomByCode(code)) out.push(`custom:${i}:${code}`); });
+  });
+  return [...new Set(out)];
+}
+function compatRoomsLabel(g){ return (g.rooms||[]).map(c=>roomByCode(c)?.nombre||c).join(", "); }
+
+function d(s){ const [y,m,dd]=s.split("-").map(Number); return new Date(y,m-1,dd); }
+function iso(dt){ return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0"); }
+function addDays(dt,n){ const x=new Date(dt); x.setDate(x.getDate()+n); return x; }
+function nights(r){ return Math.round((d(r.salida)-d(r.entrada))/86400000); }
+function fmt(s){ const x=d(s); return x.getDate()+" "+MESES[x.getMonth()]; }
+function fmtLong(s){ const x=d(s); return x.getDate()+" "+MESES_L[x.getMonth()]; }
+
+const PAL=["#B4552F","#6B7B3A","#C89A3C","#7C6A9C","#5E8C8B","#A15C4A","#8FA05A","#4E6E7A","#C08A2E","#9C7B4A","#7A8B4E","#B06A7A","#5F7355","#C2743C","#86794A","#6E8CA0"];
+function guestColor(name){ let h=0; for(let i=0;i<name.length;i++) h=(h*31+name.charCodeAt(i))>>>0; return PAL[h%PAL.length]; }
+
+function occupancy(){ const map={}; for(const r of state.reservations){ if(!r.habitacion) continue; let n=d(r.entrada),end=d(r.salida); while(n<end){ const k=r.habitacion+"|"+iso(n); (map[k]||(map[k]={people:0})); map[k].people+=(+r.personas||1); n=addDays(n,1);} } return map; }
+function houseCount(dtIso, occ){ let t=0; for(const k in occ){ if(k.endsWith("|"+dtIso)) t+=occ[k].people; } return t; }
+function conflicts(occ){
+  const byRoom={};
+  for(const k in occ){ const [code,day]=k.split("|"); const cap=effCap(code)||99; if(occ[k].people>cap){ (byRoom[code]||(byRoom[code]=[])).push({day,people:occ[k].people}); } }
+  const out=[];
+  for(const code in byRoom){ const cap=effCap(code)||99; const days=byRoom[code].sort((a,b)=>a.day<b.day?-1:1); let seg=null;
+    for(const x of days){ if(seg && iso(addDays(d(seg.end),1))===x.day){ seg.end=x.day; seg.max=Math.max(seg.max,x.people); } else { if(seg) out.push(seg); seg={code,start:x.day,end:x.day,cap,max:x.people}; } }
+    if(seg) out.push(seg);
+  }
+  out.forEach(s=>s.key=s.code+"|"+s.start+"|"+s.end+"|"+s.max);
+  return out;
+}
+function splitConflicts(){ const cf=conflicts(occupancy()); return { active:cf.filter(s=>!state.aceptados.includes(s.key)), accepted:cf.filter(s=>state.aceptados.includes(s.key)) }; }
+
+function range(){
+  const y=ui.year;
+  if(ui.month==="jul") return {start:new Date(y,6,1), end:new Date(y,7,1)};
+  if(ui.month==="ago") return {start:new Date(y,7,1), end:new Date(y,8,1)};
+  let mn=null,mx=null;
+  for(const r of state.reservations){ if(+r.entrada.slice(0,4)!==y && +r.salida.slice(0,4)!==y) continue; const a=d(r.entrada),b=d(r.salida); if(!mn||a<mn) mn=a; if(!mx||b>mx) mx=b; }
+  if(!mn) return {start:new Date(y,6,1), end:new Date(y,8,1)};
+  const start=new Date(Math.max(mn, new Date(y,5,1)));
+  const end=addDays(new Date(Math.min(mx, new Date(y,8,30))),1);
+  return {start:new Date(start.getFullYear(),start.getMonth(),start.getDate()), end};
+}
+
+function render(){
+  renderYearSel();
+  renderBanner();
+  document.querySelectorAll("#viewSeg button").forEach(b=>b.classList.toggle("on",b.dataset.view===ui.view));
+  document.querySelectorAll("#monthSeg button").forEach(b=>b.classList.toggle("on",b.dataset.m===ui.month));
+  document.getElementById("monthSeg").style.display = ui.view==="timeline" ? "" : "none";
+  const sc=document.getElementById("scroll");
+  const manageView=ui.view==="distribuir"||ui.view==="preferencias"||ui.view==="huecos"||ui.view==="comidas";
+  sc.style.boxShadow = manageView ? "none":""; sc.style.border=manageView?"0":""; sc.style.background=manageView?"transparent":"";
+  if(ui.view==="timeline") renderTimeline(); else if(ui.view==="list") renderList(); else if(ui.view==="huecos") renderHuecos(); else if(ui.view==="comidas") renderComidas(); else if(ui.view==="distribuir") renderDistribuir(); else renderPreferencias();
+  refreshGuestList();
+  save();
+}
+function renderYearSel(){
+  const sel=document.getElementById("yearSel"); if(!sel) return;
+  const ys=new Set(dataYears()); const now=new Date().getFullYear();
+  for(let y=Math.min(now,...ys, ui.year)-0; y<=Math.max(now+3,...ys, ui.year); y++) ys.add(y);
+  const arr=[...ys].sort((a,b)=>a-b);
+  sel.innerHTML=arr.map(y=>`<option value="${y}" ${y===ui.year?'selected':''}>${y}</option>`).join("");
+}
+function refreshGuestList(){
+  const names=new Set(state.reservations.map(r=>r.huesped));
+  state.familias.forEach(f=>{ (f.miembros||[]).forEach(m=>{ if(m) names.add(m); }); });
+  (state.personas||[]).forEach(p=>{ if(p.nombre) names.add(p.nombre); (p.aliases||[]).forEach(a=>a&&names.add(a)); });
+  document.getElementById("guestList").innerHTML=[...names].sort().map(n=>`<option value="${n.replace(/"/g,'&quot;')}">`).join("");
+  const sel=document.getElementById("fGuestSel");
+  if(sel){
+    const current=document.getElementById("fHuesped")?.value||""; const cp=personForGuest(current);
+    sel.innerHTML='<option value="">— Escribir un nombre nuevo —</option>'+[...(state.personas||[])].filter(p=>p.nombre).sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(p=>`<option value="${p.nombre.replace(/"/g,'&quot;')}" ${cp&&norm(cp.nombre)===norm(p.nombre)?'selected':''}>${p.nombre} · ${p.rama||'sin rama'} · ${p.tipo==='ninos'?'niños':'adultos'}</option>`).join("");
+  }
+}
+function syncGuestSelector(name){ const sel=document.getElementById("fGuestSel"); if(!sel) return; const p=personForGuest(name); sel.value=p?.nombre||""; }
+function suggestRoomForGuest(name){ const p=personForGuest(name), f=famForGuest(name); if(f&&roomAllowedForPerson(f.room,p)) return f.room; return prefRoomsFor(name).find(c=>roomAllowedForPerson(c,p))||""; }
+
+function renderBanner(){
+  const {active,accepted}=splitConflicts();
+  const el=document.getElementById("banner");
+  let acc = accepted.length? `<div class="accnote">✓ ${accepted.length} ${accepted.length===1?"apretón aceptado a propósito":"apretones aceptados a propósito"}${accepted.map(s=>` · ${roomByCode(s.code).nombre} ${fmt(s.start)}–${fmt(s.end)} <button data-un="${s.key}">revisar</button>`).join("")}</div>`:"";
+  if(!active.length){
+    el.innerHTML=`<div class="banner ok"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg><div>Todo cuadra. Ninguna habitación se pasa de capacidad sin querer.${acc}</div></div>`;
+  } else {
+    const items=active.map(s=>{ const rm=roomByCode(s.code);
+      return `<li><button class="jump" data-code="${s.code}" data-day="${s.start}">${rm.nombre}</button>: del ${fmt(s.start)} al ${fmt(s.end)} — ${s.max} personas y caben ${s.cap}. <button class="accept" data-acc="${s.key}">Aceptar apretón</button></li>`; }).join("");
+    el.innerHTML=`<div class="banner alert"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--coral);flex:none"><path d="M12 9v4m0 4h.01M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg><div><b>${active.length} ${active.length===1?"solapamiento":"solapamientos"}</b> — más gente que camas:<ul class="list">${items}</ul>${acc}</div></div>`;
+  }
+  el.querySelectorAll(".jump").forEach(b=>b.onclick=()=>{ ui.view="timeline"; ui.month="all"; render(); setTimeout(()=>jumpTo(b.dataset.code,b.dataset.day),40); });
+  el.querySelectorAll("[data-acc]").forEach(b=>b.onclick=()=>{ state.aceptados.push(b.dataset.acc); render(); toast("Apretón aceptado"); });
+  el.querySelectorAll("[data-un]").forEach(b=>b.onclick=()=>{ state.aceptados=state.aceptados.filter(k=>k!==b.dataset.un); render(); toast("Aviso reactivado"); });
+}
+function jumpTo(code,day){ const {start}=range(); const idx=Math.round((d(day)-start)/86400000); document.getElementById("scroll").scrollLeft=Math.max(0,idx*COLW-220);
+  const rail=document.querySelector(`.rail[data-code="${code}"]`); if(rail){ rail.style.background="var(--sun-tint)"; setTimeout(()=>rail.style.background="#fff",1000); } }
+
+function renderTimeline(){
+  const {start,end}=range();
+  const totalDays=Math.round((end-start)/86400000);
+  const occ=occupancy();
+  const {active,accepted}=splitConflicts();
+  const cfMap={}; active.forEach(s=>(cfMap[s.code]||(cfMap[s.code]=[])).push({...s,ok:false})); accepted.forEach(s=>(cfMap[s.code]||(cfMap[s.code]=[])).push({...s,ok:true}));
+  const q=ui.search.trim().toLowerCase();
+  const days=[]; for(let i=0;i<totalDays;i++){ const dt=addDays(start,i); days.push({dt,iso:iso(dt),we:(dt.getDay()===0||dt.getDay()===6)}); }
+  const todayIso=iso(new Date());
+
+  let bands="",i=0; while(i<days.length){ const m=days[i].dt.getMonth(); let j=i; while(j<days.length && days[j].dt.getMonth()===m) j++; bands+=`<div class="mband" style="left:${i*COLW}px; width:${(j-i)*COLW}px">${MESES_L[m]} ${days[i].dt.getFullYear()}</div>`; i=j; }
+  let dayCells=""; for(const dd of days){ const c=houseCount(dd.iso,occ); const cls=c===0?"empty":(c>=28?"full":""); dayCells+=`<div class="day ${dd.we?'we':''} ${dd.iso===todayIso?'today':''}"><span class="wd">${WD[dd.dt.getDay()]}</span><span class="dn">${dd.dt.getDate()}</span><span class="occ ${cls}">${c}</span></div>`; }
+
+  let html=`<div class="grid"><div class="row headrow"><div class="corner"><div><div class="t">Habitación</div><div class="s">${state.reservations.length} reservas · ${state.rooms.length} habitaciones</div></div></div><div class="days">${bands}${dayCells}</div></div>`;
+
+  const unassigned=state.reservations.filter(r=> !isMealOnly(r) && !r.habitacion && (+r.entrada.slice(0,4)===ui.year || +r.salida.slice(0,4)===ui.year));
+  const roomsToRender = (unassigned.length? [{codigo:"",nombre:"Sin asignar",tipo:"",capacidad:0,_virt:true}] : []).concat(state.rooms);
+  for(const rm of roomsToRender){
+    const list=state.reservations.filter(r=>!isMealOnly(r)&&(r.habitacion||"")===rm.codigo).sort((a,b)=>d(a.entrada)-d(b.entrada));
+    const lanes=[]; for(const r of list){ let placed=false; for(const lane of lanes){ if(d(r.entrada)>=d(lane[lane.length-1].salida)){ lane.push(r); placed=true; break; } } if(!placed) lanes.push([r]); }
+    const laneCount=Math.max(1,lanes.length);
+    const rowH=laneCount*34+14;
+    const beds="•".repeat(rm.capacidad);
+    const segs=cfMap[rm.codigo]||[];
+    const hasActive=segs.some(s=>!s.ok), hasOk=segs.some(s=>s.ok);
+    let deco=""; days.forEach((dd,idx)=>{ deco+=`<div class="gl" style="left:${idx*COLW}px"></div>`; if(dd.we) deco+=`<div class="we" style="left:${idx*COLW}px; width:${COLW}px"></div>`; });
+    segs.forEach(s=>{ const a=Math.round((d(s.start)-start)/86400000); const b=Math.round((addDays(d(s.end),1)-start)/86400000); const l=Math.max(0,a), rr=Math.min(days.length,b); if(rr>l) deco+=`<div class="${s.ok?'cfok':'cf'}" style="left:${l*COLW}px; width:${(rr-l)*COLW}px"></div>`; });
+
+    let bars="";
+    lanes.forEach((lane,li)=>{ for(const r of lane){
+      const a=Math.round((d(r.entrada)-start)/86400000); const nn=nights(r);
+      const s0=Math.max(0,a), e0=Math.min(days.length,a+nn); if(e0<=s0) continue;
+      const clipL=a<0, clipR=(a+nn)>days.length;
+      const col=guestColor(r.huesped); const dim=q && !r.huesped.toLowerCase().includes(q);
+      const style = rm._virt
+        ? `left:${s0*COLW+1}px; width:${(e0-s0)*COLW-2}px; top:${li*34+6}px; background:repeating-linear-gradient(45deg, var(--coral-tint), var(--coral-tint) 6px, #fff 6px, #fff 12px); border:1px dashed var(--coral); color:var(--coral)`
+        : `left:${s0*COLW+1}px; width:${(e0-s0)*COLW-2}px; top:${li*34+6}px; background:color-mix(in srgb, ${col} 20%, white); border-color:color-mix(in srgb, ${col} 45%, white); color:color-mix(in srgb, ${col} 62%, #223240); ${dim?'opacity:.25':''}`;
+      bars+=`<div class="bar ${clipL?'clipL':''} ${clipR?'clipR':''}" data-id="${r.id}" title="${r.huesped} · ${fmtLong(r.entrada)} → ${fmtLong(r.salida)} · ${r.personas}p${rm._virt?' · sin habitación':''}" style="${style}"><span>${r.huesped}</span><span class="p">${r.personas}p</span></div>`;
+    }});
+
+    const railHtml = rm._virt
+      ? `<div class="rail" data-code="" style="background:var(--coral-tint)"><div class="name" style="color:var(--coral)">Sin asignar <span class="flag cf">⚠</span></div><div class="meta"><span>pincha para colocar →</span></div></div>`
+      : `<div class="rail" data-code="${rm.codigo}"><div class="name">${rm.nombre} ${hasActive?'<span class="flag cf" title="Solapamiento">⚠</span>':(hasOk?'<span class="flag ok" title="Apretón aceptado">✓</span>':'')}</div><div class="meta"><span class="code">${rm.codigo}</span><span>${rm.tipo}</span><span class="beds" title="caben ${rm.capacidad}">${beds}</span></div></div>`;
+    html+=`<div class="row" style="height:${rowH}px">${railHtml}<div class="track" data-code="${rm.codigo}" style="width:${days.length*COLW}px">${deco}${bars}</div></div>`;
+  }
+  const totalCells=days.map(dd=>`<div class="total-cell ${dd.we?'we':''}" title="${fmtLong(dd.iso)}">${houseCount(dd.iso,occ)}</div>`).join("");
+  html+=`<div class="row total-row"><div class="rail"><div class="name">TOTAL PERSONAS</div><div class="meta">por noche</div></div><div class="total-track" style="width:${days.length*COLW}px">${totalCells}</div></div>`;
+  html+="</div>";
+  const v=document.getElementById("view"); v.innerHTML=html;
+  v.querySelectorAll(".bar").forEach(b=>b.onclick=(e)=>{ e.stopPropagation(); openEdit(+b.dataset.id); });
+  v.querySelectorAll(".track").forEach(t=>t.onclick=(e)=>{ if(e.target.closest(".bar")) return; const rect=t.getBoundingClientRect(); const x=e.clientX-rect.left; const idx=Math.floor(x/COLW); const dt=addDays(range().start,idx); openNew({habitacion:t.dataset.code, entrada:iso(dt), salida:iso(addDays(dt,1))}); });
+}
+
+function renderList(){
+  const {active,accepted}=splitConflicts();
+  const cfActive={}, cfOk={}; active.forEach(s=>(cfActive[s.code]||(cfActive[s.code]=[])).push(s)); accepted.forEach(s=>(cfOk[s.code]||(cfOk[s.code]=[])).push(s));
+  const q=ui.search.trim().toLowerCase();
+  let rows=state.reservations.slice().filter(r=>(+r.entrada.slice(0,4)===ui.year||+r.salida.slice(0,4)===ui.year)).filter(r=>!q||r.huesped.toLowerCase().includes(q)||(roomByCode(r.habitacion)?.nombre||"").toLowerCase().includes(q));
+  const s=ui.sort;
+  rows.sort((a,b)=>{ let va,vb;
+    if(s.col==="huesped"){va=a.huesped.toLowerCase();vb=b.huesped.toLowerCase();}
+    else if(s.col==="habitacion"){va=roomByCode(a.habitacion)?.nombre||"";vb=roomByCode(b.habitacion)?.nombre||"";}
+    else if(s.col==="dias"){va=nights(a);vb=nights(b);}
+    else if(s.col==="personas"){va=+a.personas;vb=+b.personas;}
+    else {va=a[s.col];vb=b[s.col];}
+    return (va<vb?-1:va>vb?1:0)*s.dir; });
+  const arrow=c=> s.col===c?(s.dir>0?" ▲":" ▼"):"";
+  function overlaps(r,segs){ return segs && segs.some(seg=> d(r.entrada)<addDays(d(seg.end),1) && d(seg.start)<d(r.salida)); }
+  let html=`<table class="table"><thead><tr><th data-c="huesped">Huésped${arrow("huesped")}</th><th>Tipo</th><th data-c="habitacion">Habitación${arrow("habitacion")}</th><th data-c="entrada">Entrada${arrow("entrada")}</th><th data-c="salida">Salida${arrow("salida")}</th><th data-c="dias">Noches${arrow("dias")}</th><th data-c="personas">Pers.${arrow("personas")}</th><th>Notas</th><th></th></tr></thead><tbody>`;
+  if(!rows.length) html+=`<tr><td colspan="9" class="empty-note">No hay reservas que coincidan.</td></tr>`;
+  for(const r of rows){ const rm=roomByCode(r.habitacion); const col=guestColor(r.huesped);
+    const tag = overlaps(r,cfActive[r.habitacion])?'<span class="tag-cf">⚠ sin sitio</span>':(overlaps(r,cfOk[r.habitacion])?'<span class="tag-ok">✓ apretón</span>':'');
+    const typeLabel=isMealOnly(r)?`Solo comidas · ${r.regimenDia==='ambas'?'comida y cena':r.regimenDia}`:'Alojamiento';
+    const inLabel=isMealOnly(r)?fmtLong(r.entrada):`${fmtLong(r.entrada)} · ${r.horaEntrada||'—'}`;
+    const outLabel=isMealOnly(r)?'—':`${fmtLong(r.salida)} · ${r.horaSalida||'—'}`;
+    html+=`<tr><td><span class="swatch" style="background:${col}"></span>${r.huesped}</td><td>${typeLabel}</td><td>${rm?rm.nombre:(isMealOnly(r)?"No ocupa":"—")} ${r.habitacion?`<span class="roompill">${r.habitacion}</span>`:''} ${tag}</td><td>${inLabel}</td><td>${outLabel}</td><td>${isMealOnly(r)?0:nights(r)}</td><td>${r.personas}</td><td style="color:var(--ink-soft); max-width:170px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">${r.notas||""}</td><td><span class="rowact"><button class="iconbtn" data-edit="${r.id}" aria-label="Editar"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button><button class="iconbtn del" data-del="${r.id}" aria-label="Eliminar"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button></span></td></tr>`;
+  }
+  html+="</tbody></table>";
+  const v=document.getElementById("view"); v.innerHTML=html;
+  v.querySelectorAll("th[data-c]").forEach(th=>th.onclick=()=>{ const c=th.dataset.c; if(ui.sort.col===c) ui.sort.dir*=-1; else ui.sort={col:c,dir:1}; renderList(); });
+  v.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openEdit(+b.dataset.edit));
+  v.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{ if(confirm("¿Eliminar esta reserva?")) del(+b.dataset.del); });
+}
+
+/* ---------- DISTRIBUIR ---------- */
+function roomOpts(sel,none){ return (none?`<option value="">${none}</option>`:"")+state.rooms.map(r=>`<option value="${r.codigo}" ${r.codigo===sel?'selected':''}>${r.nombre} · caben ${r.capacidad}</option>`).join(""); }
+function personasFromName(name){ const sig=namePartsSignature(name); return sig?sig.split("|").length:1; }
+function parseDate(s){
+  s=(s||"").trim().toLowerCase(); if(!s) return null;
+  let m;
+  if(m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/)) return `${m[1]}-${m[2].padStart(2,"0")}-${m[3].padStart(2,"0")}`;
+  if(m=s.match(/^(\d{1,2})[\/\-.](\d{1,2})(?:[\/\-.](\d{2,4}))?$/)){ let y=m[3]?(+m[3]<100?2000+ +m[3]:+m[3]):ui.year; return `${y}-${String(+m[2]).padStart(2,"0")}-${String(+m[1]).padStart(2,"0")}`; }
+  if(m=s.match(/^(\d{1,2})[\s\-]?([a-záéíóú]{3,})\.?(?:[\s\-]?(\d{2,4}))?$/)){ const mesTxt=m[2].normalize("NFD").replace(/[\u0300-\u036f]/g,""); let mi=MESES.findIndex(x=>x===mesTxt.slice(0,3)); if(mi<0) mi=MESES_L.findIndex(x=>x.startsWith(mesTxt.slice(0,4))); if(mi<0) return null; let y=m[3]?(+m[3]<100?2000+ +m[3]:+m[3]):ui.year; return `${y}-${String(mi+1).padStart(2,"0")}-${String(+m[1]).padStart(2,"0")}`; }
+  return null;
+}
+function parsePaste(text){
+  const entries=[], errors=[];
+  text.split(/\r?\n/).forEach(line=>{
+    const raw=line.trim(); if(!raw||raw.startsWith("#")||raw.startsWith("```")) return;
+    const parts=raw.split(/[;\t]|\s{2,}/).map(x=>x.trim()).filter(x=>x!=="");
+    if(parts.length<3){ errors.push(raw); return; }
+    const huesped=parts[0]; const ci=parseDate(parts[1]); const co=parseDate(parts[2]);
+    const per=parts[3]?Math.max(1,parseInt(parts[3])||0):0;
+    if(!huesped||!ci||!co||d(co)<=d(ci)){ errors.push(raw); return; }
+    entries.push({huesped, entrada:ci, salida:co, personas:per||personasFromName(huesped)});
+  });
+  return {entries, errors};
+}
+
+function logicalStays(rows){
+  const map=new Map();
+  for(const r of rows){
+    const key=r.estanciaId||("e"+r.id);
+    if(!map.has(key)) map.set(key,{key,ids:[],huesped:r.huesped,entrada:r.entrada,salida:r.salida,personas:+r.personas||1,notas:r.notas||"",habitacion:r.habitacion||""});
+    const s=map.get(key); s.ids.push(r.id);
+    if(d(r.entrada)<d(s.entrada)) s.entrada=r.entrada;
+    if(d(r.salida)>d(s.salida)) s.salida=r.salida;
+  }
+  return [...map.values()];
+}
+function prefRoomsFor(name){
+  const person=personForGuest(name);
+  const allowed=c=>roomAllowedForPerson(c,person);
+  const manual=state.prefs.filter(p=>norm(p.huesped)===norm(name)&&p.room).map(p=>p.room).filter(allowed);
+  const historic=(person?(person.prefs||[]):[]).filter(allowed);
+  return [...new Set([...manual,...historic])];
+}
+function roomFamily(code){ return state.familias.find(f=>f.room===code); }
+function compatibleHomeRooms(){ return new Set(state.familias.filter(f=>["flexible","grupo"].includes(familyMode(f))).map(f=>f.room)); }
+function stayProfile(stay){
+  const fam=famForGuest(stay.huesped), person=personForGuest(stay.huesped), prefs=prefRoomsFor(stay.huesped), homes=compatibleHomeRooms();
+  const shareTags=[];
+  if(fam && familyMode(fam)==="privada" && roomAllowedForPerson(fam.room,person)) return {shareTags:["fixed:"+norm(fam.nombre)],share:true,fixed:fam.room,prefs:[fam.room,...prefs],label:"regla fija",person,rama:person?.rama||fam.nombre,tipo:person?.tipo||"adultos"};
+  if(fam && ["flexible","grupo"].includes(familyMode(fam))){ shareTags.push("family:"+norm(fam.nombre)); if(!prefs.includes(fam.room)) prefs.unshift(fam.room); }
+  if(person?.rama && (branchMode(person.rama)==="flexible" || (branchMode(person.rama)==="solo_ninos"&&person.tipo==="ninos"))) shareTags.push("branch:"+norm(person.rama));
+  if(person?.tipo==="ninos") for(const code of prefs){ if(homes.has(code)) shareTags.push("group:"+code); }
+  shareTags.push(...customShareTags(stay.huesped));
+  const unique=[...new Set(shareTags)];
+  let label="habitación libre";
+  if(fam && familyMode(fam)==="flexible") label="familia flexible";
+  else if(fam && familyMode(fam)==="grupo") label="grupo compatible";
+  else if(person?.rama && (branchMode(person.rama)==="flexible" || (branchMode(person.rama)==="solo_ninos"&&person.tipo==="ninos"))) label="rama familiar";
+  else if(unique.some(t=>t.startsWith("custom:"))) label="compatibilidad extra";
+  else if(prefs.length) label="preferencia";
+  return {shareTags:unique,share:unique.length>0,fixed:null,prefs,label,person,rama:person?.rama||"",tipo:person?.tipo||""};
+}
+function profilesCompatible(a,b,code){
+  if(!a.share||!b.share) return false;
+  return a.shareTags.some(t=>{
+    if(!b.shareTags.includes(t)) return false;
+    if(t.startsWith("group:")) return t.slice(6)===code;
+    if(t.startsWith("custom:")) return t.split(":").pop()===code;
+    return true;
+  });
+}
+function roomPenaltyForOutsider(code,profile){
+  const f=roomFamily(code); if(!f) return 0;
+  const mode=familyMode(f);
+  if(mode==="privada" && profile.fixed!==code) return 240;
+  if((mode==="flexible"||mode==="grupo") && !profile.prefs.includes(code)) return 45;
+  return 0;
+}
+function makeChronologicalPlan(stays){
+  const clean=stays.slice().sort((a,b)=>d(a.entrada)-d(b.entrada)||d(a.salida)-d(b.salida)||a.huesped.localeCompare(b.huesped));
+  if(!clean.length) return {items:[]};
+  const profiles=new Map(clean.map(s=>[s.key,stayProfile(s)]));
+  let start=d(clean[0].entrada), end=d(clean[0].salida);
+  clean.forEach(s=>{ if(d(s.entrada)<start) start=d(s.entrada); if(d(s.salida)>end) end=d(s.salida); });
+  const daily=new Map(clean.map(s=>[s.key,[]]));
+  const prev=new Map();
+  const overflowByDay={};
+  for(let day=new Date(start); day<end; day=addDays(day,1)){
+    const dayIso=iso(day);
+    const active=clean.filter(s=>d(s.entrada)<=day && day<d(s.salida));
+    const roomUse={};
+    const assignDay=(s,code,reason)=>{
+      const p=profiles.get(s.key); const cap=effCap(code); const u=roomUse[code]||(roomUse[code]={profiles:[],people:0,keys:[]});
+      u.profiles.push(p); u.people+=s.personas; u.keys.push(s.key);
+      daily.get(s.key).push({day:dayIso,code,reason}); prev.set(s.key,code);
+      if(u.people>cap) overflowByDay[code+"|"+dayIso]=u.people-cap;
+    };
+    // Private fixed rooms are always placed first and block the room for outsiders.
+    active.filter(s=>profiles.get(s.key).fixed).sort((a,b)=>d(a.entrada)-d(b.entrada)).forEach(s=>assignDay(s,profiles.get(s.key).fixed,"regla fija"));
+    const rest=active.filter(s=>!profiles.get(s.key).fixed).sort((a,b)=>d(a.entrada)-d(b.entrada)||b.personas-a.personas||a.huesped.localeCompare(b.huesped));
+    for(const s of rest){
+      const p=profiles.get(s.key); const previous=prev.get(s.key); const prefIndex=new Map(p.prefs.map((c,i)=>[c,i]));
+      // Continuidad: si la habitación de ayer sigue siendo válida hoy, no se cambia de habitación.
+      if(previous){
+        const use=roomUse[previous];
+        const allowed=roomAllowedForPerson(previous,p.person);
+        const canKeepShare = !use ? true : (p.share && use.profiles.every(op=>profilesCompatible(p,op,previous)));
+        const people=(use?.people||0)+s.personas;
+        if(allowed && canKeepShare && people<=effCap(previous)){
+          let reasonKeep="continúa";
+          if(use){ const allWith=prefix=>use.profiles.every(op=>p.shareTags.some(t=>t.startsWith(prefix)&&op.shareTags.includes(t))); reasonKeep=allWith("custom:")?"compatibilidad extra":allWith("group:")?"grupo compatible":allWith("family:")?"familia flexible":allWith("branch:")?"rama familiar":"continúa"; }
+          assignDay(s,previous,reasonKeep);
+          continue;
+        }
+      }
+      const candidates=[];
+      for(const rm of state.rooms){
+        const code=rm.codigo, use=roomUse[code];
+        // Restricción absoluta: un niño nunca se propone fuera de las cinco habitaciones infantiles.
+        if(!roomAllowedForPerson(code,p.person)) continue;
+        const canShare=use && p.share && use.profiles.every(op=>profilesCompatible(p,op,code));
+        if(use && !canShare) continue;
+        let shareReason="";
+        if(canShare){
+          const allWith=prefix=>use.profiles.every(op=>p.shareTags.some(t=>t.startsWith(prefix)&&op.shareTags.includes(t)));
+          shareReason=allWith("custom:")?"compatibilidad extra":allWith("group:")?"grupo compatible":allWith("family:")?"familia flexible":allWith("branch:")?"rama familiar":"grupo compatible";
+        }
+        const people=(use?.people||0)+s.personas;
+        if(people>effCap(code)) continue;
+        let score=0;
+        if(prefIndex.has(code)) score-=1200-(prefIndex.get(code)*50);
+        if(canShare) score-=700;
+        score+=(effCap(code)-people)*18;
+        score+=roomPenaltyForOutsider(code,p);
+        if(previous===code) score-=12;
+        candidates.push({code,score,shared:!!canShare,shareReason,pref:prefIndex.has(code)});
+      }
+      candidates.sort((a,b)=>a.score-b.score||a.code.localeCompare(b.code));
+      if(!candidates.length){ daily.get(s.key).push({day:dayIso,code:"",reason:"sin sitio"}); prev.delete(s.key); continue; }
+      const ch=candidates[0];
+      const reason=ch.shared?(ch.shareReason||"grupo compatible"):ch.pref?(p.label==="habitación libre"?"preferencia":p.label):(previous===ch.code?"continúa":"habitación libre");
+      assignDay(s,ch.code,reason);
+    }
+  }
+  const items=clean.map(stay=>{
+    const rows=daily.get(stay.key); const segments=[];
+    for(const row of rows){
+      const last=segments[segments.length-1];
+      if(last && last.code===row.code && last.salida===row.day){ last.salida=iso(addDays(d(row.day),1)); }
+      else segments.push({entrada:row.day,salida:iso(addDays(d(row.day),1)),code:row.code,reason:row.reason,manual:false,overflow:0});
+    }
+    for(const seg of segments){ let n=d(seg.entrada); while(n<d(seg.salida)){ seg.overflow=Math.max(seg.overflow,overflowByDay[seg.code+"|"+iso(n)]||0); n=addDays(n,1); } }
+    return {stay,segments};
+  });
+  return {items};
+}
+function distribuir(){
+  const rows=state.reservations.filter(r=>!isMealOnly(r)&&(+r.entrada.slice(0,4)===ui.year||+r.salida.slice(0,4)===ui.year));
+  return {mode:"existing",year:ui.year,...makeChronologicalPlan(logicalStays(rows))};
+}
+function distribuirNuevos(entries){
+  const stays=entries.map((r,i)=>({key:"new:"+i,ids:[],huesped:r.huesped,entrada:r.entrada,salida:r.salida,personas:+r.personas||1,notas:r.notas||"",habitacion:""}));
+  return {mode:"paste",...makeChronologicalPlan(stays)};
+}
+function splitPlanSegment(plan,itemIndex,segIndex){
+  const item=plan.items[itemIndex], seg=item.segments[segIndex];
+  const answer=prompt("Fecha del cambio de habitación (DD/MM o AAAA-MM-DD)",fmt(seg.entrada));
+  if(!answer) return false;
+  const cut=parseDate(answer); if(!cut||d(cut)<=d(seg.entrada)||d(cut)>=d(seg.salida)){ toast("La fecha debe estar dentro del tramo"); return false; }
+  const left={...seg,salida:cut}; const right={...seg,entrada:cut,reason:"manual",manual:true};
+  item.segments.splice(segIndex,1,left,right); return true;
+}
+function roomSelectOptions(sel,person){
+  const rooms=state.rooms.filter(r=>roomAllowedForPerson(r.codigo,person));
+  return '<option value="">— Sin asignar —</option>'+rooms.map(r=>`<option value="${r.codigo}" ${r.codigo===sel?'selected':''}>${r.nombre} · ${r.codigo}</option>`).join("");
+}
+function badgeFor(reason){
+  return reason==="regla fija"?'<span class="badge b-fija">regla fija</span>':reason==="familia flexible"?'<span class="badge b-fija">familia flexible</span>':reason==="rama familiar"?'<span class="badge b-fija">misma rama</span>':reason==="grupo compatible"?'<span class="badge b-pref">grupo compatible</span>':reason==="compatibilidad extra"?'<span class="badge b-pref">compatibilidad extra</span>':reason==="preferencia"?'<span class="badge b-pref">preferencia</span>':reason==="continúa"?'<span class="badge b-auto">continúa</span>':reason==="manual"?'<span class="badge b-manual">manual</span>':reason==="sin sitio"?'<span class="badge b-ov">sin sitio</span>':'<span class="badge b-auto">habitación libre</span>';
+}
+
+function modeOptions(sel){ return [
+  ["privada","Privada · nunca se mezcla"],
+  ["flexible","Familia flexible · sus miembros pueden compartir"],
+  ["grupo","Grupo compatible · puede compartir"],
+  ["normal","Referencia sin regla automática"]
+].map(([v,t])=>`<option value="${v}" ${v===sel?'selected':''}>${t}</option>`).join(""); }
+function branchModeOptions(sel){ return [
+  ["flexible","Flexible · adultos y niños de la rama pueden compartir"],
+  ["solo_ninos","Solo niños de la misma rama"],
+  ["manual","No compartir automáticamente"]
+].map(([v,t])=>`<option value="${v}" ${v===sel?'selected':''}>${t}</option>`).join(""); }
+function typeOptions(sel){ return `<option value="adultos" ${sel==="adultos"?'selected':''}>Adultos</option><option value="ninos" ${sel==="ninos"?'selected':''}>Niños</option>`; }
+function renderPreferencias(){
+  const famRows=state.familias.map((f,i)=>`<tr>
+    <td style="width:18%"><input data-t="familias" data-i="${i}" data-f="nombre" value="${(f.nombre||'').replace(/"/g,'&quot;')}" placeholder="Familia"></td>
+    <td style="width:25%"><select data-t="familias" data-i="${i}" data-f="modo">${modeOptions(familyMode(f))}</select></td>
+    <td style="width:20%"><select data-t="familias" data-i="${i}" data-f="room">${roomOpts(f.room)}</select></td>
+    <td style="width:31%"><input data-t="familias" data-i="${i}" data-f="miembros" value="${((f.miembros||[]).join(', ')).replace(/"/g,'&quot;')}" placeholder="Nombres separados por comas"></td>
+    <td style="width:6%;text-align:right"><button class="iconbtn del" data-delfam="${i}" aria-label="Quitar">−</button></td></tr>`).join("");
+  const branchRows=(state.ramas||[]).map((r,i)=>`<tr><td style="width:35%"><input data-branch data-i="${i}" data-f="nombre" value="${(r.nombre||'').replace(/"/g,'&quot;')}"></td><td><select data-branch data-i="${i}" data-f="modo">${branchModeOptions(r.modo||'manual')}</select></td><td class="xcol"><button class="iconbtn del" data-delbranch="${i}">−</button></td></tr>`).join("");
+  const personRows=(state.personas||[]).map((p,i)=>`<tr>
+    <td><input data-person data-i="${i}" data-f="nombre" value="${(p.nombre||'').replace(/"/g,'&quot;')}"></td>
+    <td><input data-person data-i="${i}" data-f="aliases" value="${((p.aliases||[]).join(' ; ')).replace(/"/g,'&quot;')}" placeholder="Alias separados por ;"></td>
+    <td class="smallcol"><input data-person data-i="${i}" data-f="rama" value="${(p.rama||'').replace(/"/g,'&quot;')}"></td>
+    <td class="typecol"><select data-person data-i="${i}" data-f="tipo">${typeOptions(p.tipo)}</select></td>
+    <td class="roomcol"><input data-person data-i="${i}" data-f="prefs" value="${personPrefsLabel(p).replace(/"/g,'&quot;')}" placeholder="NIÑAS, PASO…"></td>
+    <td class="delcol"><button class="iconbtn del" data-delperson="${i}">−</button></td></tr>`).join("");
+  const prefRows=state.prefs.map((p,i)=>`<tr><td class="gcol"><input list="guestList" data-t="prefs" data-i="${i}" data-f="huesped" value="${(p.huesped||'').replace(/"/g,'&quot;')}" placeholder="Nombre"></td><td class="rcol"><select data-t="prefs" data-i="${i}" data-f="room">${roomOpts(p.room)}</select></td><td class="xcol"><button class="iconbtn del" data-delrule="prefs" data-i="${i}" aria-label="Quitar">−</button></td></tr>`).join("");
+  const compatRows=(state.compatGroups||[]).map((g,i)=>`<tr><td style="width:22%"><input data-compat data-i="${i}" data-f="nombre" value="${(g.nombre||'').replace(/"/g,'&quot;')}" placeholder="Nombre del grupo"></td><td style="width:46%"><input data-compat data-i="${i}" data-f="miembros" value="${((g.miembros||[]).join(' ; ')).replace(/"/g,'&quot;')}" placeholder="Miembros separados por ;"></td><td style="width:26%"><input data-compat data-i="${i}" data-f="rooms" value="${compatRoomsLabel(g).replace(/"/g,'&quot;')}" placeholder="NIÑAS, PASO…"></td><td class="xcol"><button class="iconbtn del" data-delcompat="${i}">−</button></td></tr>`).join("");
+  document.getElementById("view").innerHTML=`<div class="dist prefgrid">
+    <div class="cardbox"><h3>Habitaciones fijas y grupos</h3><p class="hint">Las habitaciones privadas nunca reciben automáticamente a otra persona cuando está su titular. Los grupos flexibles pueden compartir solo entre miembros compatibles.</p><table class="ruletbl"><tbody>${famRows}</tbody></table><button class="btn ghost sm" id="addFam" style="margin-top:8px">+ Añadir familia o grupo</button></div>
+    <div class="cardbox"><h3>Compatibilidad por rama familiar</h3><p class="hint">Una rama flexible permite compartir entre adultos o entre adultos y niños de esa misma rama. <b>Regla absoluta para niños:</b> solo pueden alojarse en MUCHACHAS, PASO, NIÑAS, MURCIANOS o MADRILEÑOS, aunque su rama o una preferencia apunte a otra habitación.</p><table class="ruletbl"><tbody>${branchRows}</tbody></table><button class="btn ghost sm" id="addBranch" style="margin-top:8px">+ Añadir rama</button></div>
+    <div class="cardbox"><h3>Base de personas</h3><p class="hint">Cargada con tu tabla: nombre corregido, alias, rama, tipo y habitaciones donde ha dormido. El historial es una preferencia suave; no es una regla fija. Las preferencias de un niño que estén fuera de las cinco habitaciones infantiles se ignoran automáticamente.</p><div class="prefs-scroll"><table class="persontbl"><thead><tr><th>Nombre reconocido</th><th>Alias</th><th>Rama</th><th>Tipo</th><th>Preferencias en orden</th><th></th></tr></thead><tbody>${personRows}</tbody></table></div><button class="btn ghost sm" id="addPerson" style="margin-top:8px">+ Añadir persona o grupo</button></div>
+    <div class="cardbox"><h3>Compatibilidades extra</h3><p class="hint">Crea excepciones explícitas sin cambiar toda una rama. Las personas indicadas podrán compartir únicamente en las habitaciones que escribas. Déjalo vacío hasta que tengas clara la nueva regla.</p><table class="ruletbl"><tbody>${compatRows||'<tr><td class="hint" colspan="4">No hay compatibilidades extra configuradas.</td></tr>'}</tbody></table><button class="btn ghost sm" id="addCompat" style="margin-top:8px">+ Añadir compatibilidad</button></div>
+    <div class="cardbox"><h3>Preferencias manuales</h3><p class="hint">Tienen prioridad sobre el historial. Indican qué habitación probar primero, pero no autorizan a compartir con personas incompatibles.</p><table class="ruletbl"><tbody>${prefRows||'<tr><td class="hint" colspan="3">Sin preferencias manuales todavía.</td></tr>'}</tbody></table><button class="btn ghost sm" id="addPref" style="margin-top:8px">+ Añadir preferencia manual</button></div>
+    <div class="cardbox"><h3>Cama supletoria</h3><p class="hint">Suma una plaza a la habitación seleccionada, pero no autoriza a mezclar grupos incompatibles.</p><select id="supSel" style="max-width:300px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff">${roomOpts(state.supletoria.room||'',"Ninguna (guardada)")}</select></div>
+  </div>`;
+  const v=document.getElementById("view");
+  v.querySelectorAll("[data-t]").forEach(el=>{ el.oninput=el.onchange=()=>{ const t=el.dataset.t,i=+el.dataset.i,f=el.dataset.f; if(t==="familias"&&f==="miembros") state.familias[i].miembros=el.value.split(",").map(x=>x.trim()).filter(Boolean); else state[t][i][f]=el.value; save(); }; });
+  v.querySelectorAll("[data-branch]").forEach(el=>{ el.onchange=el.oninput=()=>{ state.ramas[+el.dataset.i][el.dataset.f]=el.value; save(); }; });
+  v.querySelectorAll("[data-compat]").forEach(el=>{ el.onchange=el.oninput=()=>{ const g=state.compatGroups[+el.dataset.i],f=el.dataset.f; if(f==="miembros") g.miembros=el.value.split(";").map(x=>x.trim()).filter(Boolean); else if(f==="rooms") g.rooms=el.value.split(",").map(x=>roomCodeFromText(x.trim())).filter(Boolean); else g[f]=el.value; save(); }; });
+  v.querySelectorAll("[data-person]").forEach(el=>{ el.onchange=el.oninput=()=>{
+    const p=state.personas[+el.dataset.i],f=el.dataset.f;
+    if(f==="aliases") p.aliases=el.value.split(";").map(x=>x.trim()).filter(Boolean);
+    else if(f==="prefs"){
+      const parsed=el.value.split(",").map(x=>roomCodeFromText(x.trim())).filter(Boolean);
+      p.prefs=p.tipo==="ninos"?parsed.filter(c=>CHILD_ROOM_CODES.has(c)):parsed;
+    } else {
+      p[f]=el.value;
+      if(f==="tipo"&&p.tipo==="ninos") p.prefs=(p.prefs||[]).filter(c=>CHILD_ROOM_CODES.has(c));
+    }
+    save();
+  }; });
+  v.querySelectorAll("[data-delfam]").forEach(b=>b.onclick=()=>{ state.familias.splice(+b.dataset.delfam,1); render(); });
+  v.querySelectorAll("[data-delbranch]").forEach(b=>b.onclick=()=>{ state.ramas.splice(+b.dataset.delbranch,1); render(); });
+  v.querySelectorAll("[data-delperson]").forEach(b=>b.onclick=()=>{ state.personas.splice(+b.dataset.delperson,1); render(); });
+  v.querySelectorAll("[data-delcompat]").forEach(b=>b.onclick=()=>{ state.compatGroups.splice(+b.dataset.delcompat,1); render(); });
+  v.querySelectorAll("[data-delrule]").forEach(b=>b.onclick=()=>{ state[b.dataset.delrule].splice(+b.dataset.i,1); render(); });
+  document.getElementById("addFam").onclick=()=>{ state.familias.push({nombre:"",room:state.rooms[0].codigo,miembros:[],modo:"normal"}); render(); };
+  document.getElementById("addBranch").onclick=()=>{ state.ramas.push({nombre:"",modo:"manual"}); render(); };
+  document.getElementById("addPerson").onclick=()=>{ state.personas.push({nombre:"",aliases:[],rama:"",tipo:"adultos",prefs:[]}); render(); };
+  document.getElementById("addCompat").onclick=()=>{ state.compatGroups.push({nombre:"",miembros:[],rooms:[]}); render(); };
+  document.getElementById("addPref").onclick=()=>{ state.prefs.push({huesped:"",room:state.rooms[0].codigo}); render(); };
+  document.getElementById("supSel").onchange=e=>{ state.supletoria.room=e.target.value||null; save(); render(); toast(e.target.value?"Cama supletoria asignada":"Cama supletoria guardada"); };
+}
+function roomDayDetails(code,startIso,endIso,guestProfile,people){
+  const details=[];
+  for(let day=d(startIso);day<d(endIso);day=addDays(day,1)){
+    const dayIso=iso(day);
+    const occupants=state.reservations.filter(r=>!isMealOnly(r)&&r.habitacion===code&&d(r.entrada)<=day&&day<d(r.salida));
+    const used=occupants.reduce((t,r)=>t+(+r.personas||1),0), free=Math.max(0,effCap(code)-used);
+    const roomFam=roomFamily(code), privateOccupied=occupants.length&&roomFam&&familyMode(roomFam)==="privada";
+    let compatible=occupants.length===0;
+    if(occupants.length && guestProfile && !privateOccupied){
+      compatible=occupants.every(r=>profilesCompatible(guestProfile,stayProfile({huesped:r.huesped,personas:+r.personas||1}),code));
+    }
+    details.push({day:dayIso,occupants,used,free,enough:free>=people,compatible,privateOccupied});
+  }
+  return details;
+}
+function availabilitySegments(details,criterion){
+  const out=[]; let start=null,last=null;
+  for(const x of details){
+    const ok=criterion(x);
+    if(ok&&!start) start=x.day;
+    if(!ok&&start){ out.push({entrada:start,salida:x.day}); start=null; }
+    last=x.day;
+  }
+  if(start&&last) out.push({entrada:start,salida:iso(addDays(d(last),1))});
+  return out;
+}
+function dayAvailabilityLabel(details){
+  const groups=[];
+  for(const x of details){
+    const key=`${x.free}|${x.compatible?'c':'i'}|${x.privateOccupied?'p':''}`;
+    const last=groups[groups.length-1];
+    if(last&&last.key===key&&last.salida===x.day) last.salida=iso(addDays(d(x.day),1));
+    else groups.push({key,entrada:x.day,salida:iso(addDays(d(x.day),1)),free:x.free,compatible:x.compatible,privateOccupied:x.privateOccupied});
+  }
+  return groups.map(g=>`${fmt(g.entrada)}–${fmt(g.salida)}: <b>${g.free}</b> libres${g.privateOccupied?' · privada':g.compatible?' · compatibles':' · no compatibles'}`).join('<br>');
+}
+function renderHuecosResults(){
+  const box=document.getElementById("availResults"); if(!box) return;
+  const huesped=document.getElementById("availGuest").value;
+  const entrada=document.getElementById("availIn").value, salida=document.getElementById("availOut").value;
+  const personas=Math.max(1,+document.getElementById("availPer").value||1);
+  ui.huecos={huesped,entrada,salida,personas};
+  if(!entrada||!salida||d(salida)<=d(entrada)){ box.innerHTML='<div class="availability-empty">Selecciona una entrada y una salida válidas.</div>'; return; }
+  const person=personForGuest(huesped), prefs=new Set(huesped?prefRoomsFor(huesped):[]);
+  const guestProfile=huesped?stayProfile({huesped,personas}):null;
+  const eligible=state.rooms.filter(r=>roomAllowedForPerson(r.codigo,person)&&effCap(r.codigo)>=personas);
+  const empty=[], compatible=[], exception=[];
+  eligible.forEach(room=>{
+    const details=roomDayDetails(room.codigo,entrada,salida,guestProfile,personas);
+    const allEmpty=details.every(x=>x.occupants.length===0&&x.enough);
+    const allEnough=details.every(x=>x.enough);
+    const occupied=details.some(x=>x.occupants.length);
+    const anyIncompatible=details.some(x=>x.occupants.length&&(!x.compatible||x.privateOccupied));
+    const compSegs=availabilitySegments(details,x=>x.enough&&(x.occupants.length===0||x.compatible)&&!x.privateOccupied);
+    const anySegs=availabilitySegments(details,x=>x.enough);
+    const item={room,details,allEnough,segments:anyIncompatible?anySegs:compSegs};
+    if(allEmpty) empty.push(item);
+    else if(occupied&&!anyIncompatible&&compSegs.length) compatible.push(item);
+    else if(anySegs.length) exception.push(item);
+  });
+  const sorter=(a,b)=>(prefs.has(b.room.codigo)-prefs.has(a.room.codigo))||(effCap(a.room.codigo)-effCap(b.room.codigo))||a.room.nombre.localeCompare(b.room.nombre);
+  empty.sort(sorter); compatible.sort(sorter); exception.sort(sorter);
+  const card=(x,kind)=>{
+    const cls=kind==='compatible'?'compatible':kind==='exception'?'exception':'';
+    const full=x.allEnough&&x.segments.length===1&&x.segments[0].entrada===entrada&&x.segments[0].salida===salida;
+    const actions=x.segments.map(seg=>`<button class="btn ${kind==='exception'?'ghost':'primary'} sm" data-book-room="${x.room.codigo}" data-book-in="${seg.entrada}" data-book-out="${seg.salida}" data-exception="${kind==='exception'?'1':''}">${kind==='exception'?'Preparar excepción manual':full?'Crear reserva aquí':'Crear para este tramo'}</button>`).join(' ');
+    return `<div class="roomcard ${cls}"><h4><span>${x.room.nombre}</span>${prefs.has(x.room.codigo)?'<span class="prefmark">preferida</span>':''}</h4><div class="roommeta">${x.room.codigo} · ${x.room.tipo} · ${effCap(x.room.codigo)} plazas${state.supletoria?.room===x.room.codigo?' con plegatín':''}</div><div class="availability-days">${dayAvailabilityLabel(x.details)}</div><div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">${actions}</div></div>`;
+  };
+  let html=`<div class="cardbox" style="margin-top:14px"><h3>1 · Habitación vacía toda la estancia</h3><p class="hint">La habitación está completamente vacía todas las noches, tiene capacidad suficiente y está permitida para el huésped.</p>${empty.length?`<div class="availability-results">${empty.map(x=>card(x,'empty')).join('')}</div>`:'<div class="availability-empty">No hay una habitación completamente vacía durante todo el periodo.</div>'}</div>`;
+  html+=`<div class="cardbox"><h3>2 · Plazas dentro de habitaciones compatibles</h3><p class="hint">Hay otras personas, pero las reglas permiten compartir. Se comprueba la capacidad noche por noche; si no cabe toda la estancia, se muestran únicamente los tramos posibles.</p>${huesped?(compatible.length?`<div class="availability-results">${compatible.map(x=>card(x,'compatible')).join('')}</div>`:'<div class="availability-empty">No hay plazas compatibles para estas fechas.</div>'):'<div class="availability-empty">Elige un huésped para poder comprobar la compatibilidad.</div>'}</div>`;
+  html+=`<div class="cardbox"><h3>3 · Plazas físicamente libres, pero no compatibles</h3><p class="hint">Son posibles solo como excepción manual. Se muestran las camas libres por día, pero pueden mezclar ramas o invadir una habitación privada. El programa nunca las aplicará automáticamente.</p>${huesped?(exception.length?`<div class="availability-results">${exception.map(x=>card(x,'exception')).join('')}</div>`:'<div class="availability-empty">No hay plazas de excepción con capacidad física suficiente.</div>'):'<div class="availability-empty">Elige un huésped para distinguir compatibilidad y excepciones.</div>'}</div>`;
+  if(isChildPerson(person)) html+=`<div class="plan-note">Huésped identificado como niño: incluso las excepciones se limitan a ${childRoomsLabel()}.</div>`;
+  box.innerHTML=html;
+  box.querySelectorAll("[data-book-room]").forEach(b=>b.onclick=()=>openNew({huesped,habitacion:b.dataset.bookRoom,entrada:b.dataset.bookIn,salida:b.dataset.bookOut,personas,notas:b.dataset.exception?"Excepción manual propuesta desde Huecos":""}));
+}
+function renderHuecos(){
+  const h=ui.huecos||{}; const entrada=h.entrada||`${ui.year}-07-01`, salida=h.salida||`${ui.year}-07-02`;
+  const guestOptions='<option value="">— Sin huésped concreto —</option>'+[...(state.personas||[])].filter(p=>p.nombre).sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(p=>`<option value="${p.nombre.replace(/"/g,'&quot;')}" ${norm(h.huesped)===norm(p.nombre)?'selected':''}>${p.nombre} · ${p.rama||'sin rama'} · ${p.tipo==='ninos'?'niños':'adultos'}</option>`).join('');
+  document.getElementById("view").innerHTML=`<div class="dist"><div class="cardbox"><h3>Buscar huecos por fechas</h3><p class="hint">Primero se buscan habitaciones vacías; después plazas compatibles; por último se enseñan posibles excepciones manuales. La capacidad se calcula noche por noche.</p><div class="availability-form"><div class="field wide"><label>Huésped habitual (recomendado)</label><select id="availGuest">${guestOptions}</select></div><div class="field"><label>Entrada</label><input type="date" id="availIn" value="${entrada}"></div><div class="field"><label>Salida</label><input type="date" id="availOut" value="${salida}"></div><div class="field"><label>Personas</label><input type="number" min="1" id="availPer" value="${h.personas||2}"></div><button class="btn primary" id="runAvail">Buscar huecos</button></div><div id="availResults"></div></div></div>`;
+  document.getElementById("runAvail").onclick=renderHuecosResults;
+  ["availGuest","availIn","availOut","availPer"].forEach(id=>document.getElementById(id).onchange=renderHuecosResults);
+  renderHuecosResults();
+}
+
+function reservationMealsOn(r,dayIso){
+  const people=+r.personas||1, cfg=mealConfig(+dayIso.slice(0,4)), cutoff=cfg.horaCorte||"14:00";
+  if(isMealOnly(r)){
+    if(r.entrada!==dayIso) return {lunch:0,dinner:0};
+    return {lunch:["comida","ambas"].includes(r.regimenDia)?people:0,dinner:["cena","ambas"].includes(r.regimenDia)?people:0};
+  }
+  const day=d(dayIso), start=d(r.entrada), end=d(r.salida);
+  if(day<start||day>end) return {lunch:0,dinner:0};
+  let lunch=0,dinner=0;
+  if(day<end) dinner=people;
+  if(day>start&&day<end) lunch=people;
+  else if(day.getTime()===start.getTime()&&validTime(r.horaEntrada,"14:00")<=cutoff) lunch=people;
+  else if(day.getTime()===end.getTime()&&validTime(r.horaSalida,"12:00")>=cutoff) lunch=people;
+  return {lunch,dinner};
+}
+function mealRowsForYear(year){
+  const rows=state.reservations.filter(r=>+r.entrada.slice(0,4)===year||+r.salida.slice(0,4)===year);
+  let start=new Date(year,6,1),end=new Date(year,8,1);
+  if(rows.length){ start=rows.reduce((m,r)=>d(r.entrada)<m?d(r.entrada):m,d(rows[0].entrada)); end=rows.reduce((m,r)=>d(r.salida)>m?d(r.salida):m,d(rows[0].salida)); end=addDays(end,1); }
+  const occ=occupancy(), out=[];
+  for(let day=start;day<end;day=addDays(day,1)){
+    const dayIso=iso(day), lunches=[],dinners=[]; let lunch=0,dinner=0;
+    rows.forEach(r=>{ const m=reservationMealsOn(r,dayIso); if(m.lunch){ lunch+=m.lunch;lunches.push(`${r.huesped} (${m.lunch})`); } if(m.dinner){ dinner+=m.dinner;dinners.push(`${r.huesped} (${m.dinner})`); } });
+    const sleeping=houseCount(dayIso,occ);
+    if(sleeping||lunch||dinner) out.push({day:dayIso,sleeping,lunch,dinner,lunches,dinners});
+  }
+  return out;
+}
+function exportMealsCsv(){
+  const rows=mealRowsForYear(ui.year), lines=[["Fecha","Duermen","Comen","Cenan","Quién come","Quién cena"].join(";")];
+  rows.forEach(r=>lines.push([r.day,r.sleeping,r.lunch,r.dinner,r.lunches.join(" | "),r.dinners.join(" | ")].join(";")));
+  download(`el-taray-comidas-${ui.year}.csv`,"\ufeff"+lines.join("\n"),"text/csv"); toast("Comidas exportadas");
+}
+function renderComidas(){
+  const cfg=mealConfig(ui.year), rows=mealRowsForYear(ui.year);
+  const body=rows.map(r=>`<tr><td>${fmtLong(r.day)}</td><td class="num">${r.sleeping}</td><td class="num">${r.lunch}</td><td class="num">${r.dinner}</td><td class="meal-names">${r.lunches.join(", ")||"—"}</td><td class="meal-names">${r.dinners.join(", ")||"—"}</td></tr>`).join("");
+  document.getElementById("view").innerHTML=`<div class="dist"><div class="cardbox"><h3>Comidas y cenas · ${ui.year}</h3><p class="hint">Una llegada a la hora de corte o antes cuenta para comida. Una salida a la hora de corte o después también cuenta para comida. Las visitas de solo comidas no ocupan habitación.</p><div class="meal-config"><div class="field"><label>Hora de corte de la comida</label><input type="time" id="mealCutoff" value="${cfg.horaCorte||'14:00'}"></div><button class="btn" id="exportMeals">Exportar para cocina (.csv)</button></div></div><div class="cardbox"><table class="meal-table"><thead><tr><th>Fecha</th><th>Duermen</th><th>Comen</th><th>Cenan</th><th>Quién come</th><th>Quién cena</th></tr></thead><tbody>${body||'<tr><td colspan="6" class="empty-note">Todavía no hay datos para esta temporada.</td></tr>'}</tbody></table></div><div class="plan-note">La cifra “Duermen” corresponde a la noche que empieza ese día. El coste y el reparto por familias se incorporarán en la fase 2.</div></div>`;
+  document.getElementById("mealCutoff").onchange=e=>{ cfg.horaCorte=e.target.value||"14:00"; save(); renderComidas(); toast("Hora de corte actualizada"); };
+  document.getElementById("exportMeals").onclick=exportMealsCsv;
+}
+
+function renderDistribuir(){
+  document.getElementById("view").innerHTML=`<div class="dist">
+    <div class="cardbox"><h3>Meter lista de personas</h3><p class="hint">Una persona o grupo por línea: <b>Nombre ; entrada ; salida ; personas</b>. Se reparte por fecha de llegada. Quienes no tienen habitación fija pueden cambiar de habitación durante la estancia cuando sea necesario.</p><textarea id="pasteBox" placeholder="Ruth ; 14/08 ; 24/08\nBeatriz y Jaime ; 14/08 ; 24/08 ; 2" style="width:100%;min-height:140px;border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:#fff;font-family:var(--mono);font-size:13px;resize:vertical">${(state.pendingText||"").replace(/&/g,"&amp;").replace(/</g,"&lt;")}</textarea><div class="distactions" style="margin-top:10px"><button class="btn primary" id="runPaste">Previsualizar distribución</button><span class="hint">Temporada ${ui.year}. La propuesta se puede corregir manualmente antes de aplicar.</span></div><div id="pastePreview"></div></div>
+    <div class="distactions"><button class="btn primary" id="runDist">Redistribuir temporada ${ui.year}</button><button class="btn ghost" id="clearDist">Vaciar distribución</button><span class="hint">Las reservas no se borran al vaciar: pasan a “Sin asignar”.</span></div><div id="proposalBox"></div>
+  </div>`;
+  const box=document.getElementById("pasteBox"); box.oninput=()=>{ state.pendingText=box.value; save(); };
+  document.getElementById("runDist").onclick=()=>{ ui.plan=distribuir(); ui.pastePlan=null; renderProposal(); };
+  document.getElementById("runPaste").onclick=()=>{ const parsed=parsePaste(box.value); const p=distribuirNuevos(parsed.entries); ui.pastePlan={...p,errors:parsed.errors}; ui.plan=null; renderPastePreview(); };
+  document.getElementById("clearDist").onclick=()=>{ if(confirm("¿Vaciar la distribución del verano de "+ui.year+"? Las reservas no se borrarán.")){ state.reservations.forEach(r=>{ if(!isMealOnly(r)&&(+r.entrada.slice(0,4)===ui.year||+r.salida.slice(0,4)===ui.year)) r.habitacion=""; }); state.aceptados=[]; ui.plan=null; ui.pastePlan=null; ui.view="timeline"; render(); toast("Distribución vaciada"); } };
+  if(ui.plan) renderProposal(); if(ui.pastePlan) renderPastePreview();
+}
+
+function renderPlanRows(plan){
+  let rowNo=0, sin=0, changes=0;
+  const body=plan.items.map((item,itemIndex)=>{
+    return item.segments.map((seg,segIndex)=>{
+      rowNo++; if(!seg.code) sin++; if(item.segments.length>1) changes++;
+      const pp=personForGuest(item.stay.huesped);
+      const roomSelect=`<select class="planroom" data-plan-room data-item="${itemIndex}" data-seg="${segIndex}">${roomSelectOptions(seg.code,pp)}</select>`;
+      const actions=`<span class="segment-actions"><button class="iconbtn" data-split-seg data-item="${itemIndex}" data-seg="${segIndex}" title="Dividir este tramo">Dividir</button></span>`;
+      const meta=pp?`<div class="profilemeta"><span class="branchpill">${pp.rama||"sin rama"}</span>${pp.tipo==="ninos"?"niños · solo "+childRoomsLabel():"adultos"}${norm(pp.nombre)!==norm(item.stay.huesped)?` · reconocido como ${pp.nombre}`:""}</div>`:`<div class="profilemeta">sin ficha familiar</div>`;
+      return `<tr><td>${segIndex===0?`<span class="swatch" style="background:${guestColor(item.stay.huesped)}"></span>${item.stay.huesped}<div style="font-size:11px;color:var(--ink-soft);margin-left:18px">${item.stay.personas} persona${item.stay.personas===1?'':'s'}</div>${meta}`:'<span style="color:var(--ink-faint)">↳ cambio</span>'}</td><td>${fmt(seg.entrada)}–${fmt(seg.salida)}</td><td>${roomSelect}${actions}</td><td>${badgeFor(seg.reason)} ${seg.overflow?`<span class="badge b-ov">+${seg.overflow}</span>`:''}</td></tr>`;
+    }).join("");
+  }).join("");
+  return {body,rowNo,sin,changes};
+}
+function wirePlanControls(plan,rerender){
+  document.querySelectorAll("[data-plan-room]").forEach(sel=>sel.onchange=()=>{ const seg=plan.items[+sel.dataset.item].segments[+sel.dataset.seg]; seg.code=sel.value; seg.reason="manual"; seg.manual=true; rerender(); });
+  document.querySelectorAll("[data-split-seg]").forEach(btn=>btn.onclick=()=>{ if(splitPlanSegment(plan,+btn.dataset.item,+btn.dataset.seg)) rerender(); });
+}
+function applyExistingPlan(plan){
+  const removeIds=new Set(plan.items.flatMap(i=>i.stay.ids));
+  state.reservations=state.reservations.filter(r=>!removeIds.has(r.id));
+  for(const item of plan.items){
+    const stayId=item.stay.key||("e"+newReservationId());
+    item.segments.forEach((seg,idx)=>state.reservations.push({id:newReservationId(),cloudId:newCloudId(),estanciaId:stayId,huesped:item.stay.huesped,habitacion:seg.code||"",entrada:seg.entrada,salida:seg.salida,personas:item.stay.personas,notas:item.stay.notas||""}));
+  }
+  state.aceptados=[]; ui.plan=null; ui.view="timeline"; render(); toast("Distribución aplicada");
+}
+function renderProposal(){
+  const plan=ui.plan, box=document.getElementById("proposalBox"); if(!plan||!box) return;
+  const r=renderPlanRows(plan);
+  box.innerHTML=`<div class="proposal"><div class="ph"><span class="stat"><b>${plan.items.length}</b> estancias</span><span class="stat"><b>${r.rowNo}</b> tramos</span><span class="stat" style="color:${r.sin?'var(--coral)':'var(--ink-soft)'}"><b>${r.sin}</b> sin asignar</span><div class="spacer" style="flex:1"></div><button class="btn ghost sm" id="discardPlan">Descartar</button><button class="btn primary sm" id="applyPlan">Aplicar distribución</button></div><table class="table"><thead><tr><th>Huésped</th><th>Tramo</th><th>Habitación propuesta</th><th>Motivo</th></tr></thead><tbody>${r.body}</tbody></table><div class="plan-note">Puedes cambiar cualquier habitación con el desplegable. “Dividir” crea una fecha de cambio adicional. Una asignación manual puede provocar un aviso de capacidad, que podrás revisar después en el calendario.</div></div>`;
+  wirePlanControls(plan,renderProposal);
+  document.getElementById("applyPlan").onclick=()=>applyExistingPlan(plan);
+  document.getElementById("discardPlan").onclick=()=>{ ui.plan=null; box.innerHTML=""; toast("Propuesta descartada"); };
+}
+function renderPastePreview(){
+  const plan=ui.pastePlan, box=document.getElementById("pastePreview"); if(!plan||!box) return;
+  if(!plan.items.length){ box.innerHTML=`<div class="proposal" style="margin-top:12px"><div class="ph"><span class="stat">No se ha entendido ninguna línea.</span></div></div>`; return; }
+  const r=renderPlanRows(plan); const errors=plan.errors||[];
+  const yrs=[...new Set(plan.items.map(i=>+i.stay.entrada.slice(0,4)))]; const yrLabel=yrs.length===1?"el verano de "+yrs[0]:"los veranos "+yrs.join(", ");
+  const existing=state.reservations.filter(x=>yrs.includes(+x.entrada.slice(0,4))).length;
+  box.innerHTML=`<div class="proposal" style="margin-top:12px"><div class="ph"><span class="stat"><b>${plan.items.length}</b> estancias · <b>${r.rowNo}</b> tramos</span><span class="stat" style="color:${r.sin?'var(--coral)':'var(--ink-soft)'}"><b>${r.sin}</b> sin asignar</span><div class="spacer" style="flex:1"></div><button class="btn ghost sm" id="discardPaste">Descartar</button><button class="btn primary sm" id="applyPaste">Reemplazar ${yrLabel}</button></div>${existing?`<div style="padding:8px 18px;font-size:12.5px;color:var(--sun-deep);background:var(--sun-tint);border-bottom:1px solid var(--line)">Sustituirá ${existing} reservas existentes de ${yrLabel}.</div>`:""}<table class="table"><thead><tr><th>Huésped</th><th>Tramo</th><th>Habitación propuesta</th><th>Motivo</th></tr></thead><tbody>${r.body}</tbody></table>${errors.length?`<div class="plan-note" style="color:var(--coral)">Líneas no entendidas: ${errors.map(e=>e.replace(/</g,"&lt;")).join(" · ")}</div>`:""}<div class="plan-note">La propuesta sigue el orden de llegada. Puedes reasignar habitaciones o dividir cualquier estancia antes de crear el calendario.</div></div>`;
+  wirePlanControls(plan,renderPastePreview);
+  document.getElementById("applyPaste").onclick=()=>{
+    state.reservations=state.reservations.filter(x=>!yrs.includes(+x.entrada.slice(0,4)));
+    plan.items.forEach((item,itemIndex)=>{ const stayId="n"+Date.now()+"_"+itemIndex; item.segments.forEach(seg=>state.reservations.push({id:newReservationId(),cloudId:newCloudId(),estanciaId:stayId,huesped:item.stay.huesped,habitacion:seg.code||"",entrada:seg.entrada,salida:seg.salida,personas:item.stay.personas,notas:item.stay.notas||""})); });
+    state.aceptados=[]; state.pendingText=""; ui.pastePlan=null; ui.view="timeline"; ui.year=yrs[0]; render(); toast(plan.items.length+" estancias creadas");
+  };
+  document.getElementById("discardPaste").onclick=()=>{ ui.pastePlan=null; box.innerHTML=""; };
+}
+
+/* ---------- modal ---------- */
+function fillRooms(sel,guestName){
+  const person=personForGuest(guestName||"");
+  const rooms=state.rooms.filter(r=>roomAllowedForPerson(r.codigo,person));
+  document.getElementById("fHab").innerHTML='<option value="">— sin asignar —</option>'+rooms.map(r=>`<option value="${r.codigo}">${r.nombre} · ${r.tipo} · caben ${r.capacidad}</option>`).join("");
+  document.getElementById("fHab").value=roomAllowedForPerson(sel,person)?(sel||""):"";
+}
+function syncReservationTypeUi(){
+  const mealOnly=document.getElementById("fTipo").value==="comidas";
+  document.getElementById("roomField").style.display=mealOnly?"none":"";
+  document.getElementById("stayTimeFields").style.display=mealOnly?"none":"";
+  document.getElementById("outDateField").style.display=mealOnly?"none":"";
+  document.getElementById("mealOnlyFields").classList.toggle("show",mealOnly);
+  document.getElementById("fInLabel").textContent=mealOnly?"Día":"Entrada";
+  if(mealOnly){ document.getElementById("fHab").value=""; document.getElementById("fOut").value=document.getElementById("fIn").value; }
+  checkModalConflict();
+}
+function openNew(prefill){
+  ui.editing=null; document.getElementById("mTitleTxt").textContent="Nueva reserva"; document.getElementById("delBtn").style.display="none";
+  const guest=prefill?.huesped||""; document.getElementById("fHuesped").value=guest; refreshGuestList(); syncGuestSelector(guest);
+  document.getElementById("fTipo").value=prefill?.tipoReserva||"alojamiento";
+  fillRooms(prefill?.habitacion||suggestRoomForGuest(guest),guest);
+  document.getElementById("fIn").value=prefill?.entrada||(ui.year+"-07-01"); document.getElementById("fOut").value=prefill?.salida||(ui.year+"-07-02");
+  document.getElementById("fInTime").value=prefill?.horaEntrada||"14:00"; document.getElementById("fOutTime").value=prefill?.horaSalida||"12:00";
+  document.getElementById("fMealOnly").value=prefill?.regimenDia||"comida";
+  document.getElementById("fPer").value=prefill?.personas||(guest?personasFromName(guest):2); document.getElementById("fNotas").value=prefill?.notas||"";
+  syncReservationTypeUi(); showModal(); checkModalConflict(); setTimeout(()=>document.getElementById(guest?"fIn":"fHuesped").focus(),40);
+}
+function openEdit(id){
+  const r=state.reservations.find(x=>x.id===id); if(!r) return; ui.editing=id; document.getElementById("mTitleTxt").textContent="Editar reserva"; document.getElementById("delBtn").style.display="";
+  document.getElementById("fHuesped").value=r.huesped; refreshGuestList(); syncGuestSelector(r.huesped); document.getElementById("fTipo").value=r.tipoReserva||"alojamiento"; fillRooms(r.habitacion,r.huesped);
+  document.getElementById("fIn").value=r.entrada; document.getElementById("fOut").value=r.salida; document.getElementById("fInTime").value=r.horaEntrada||"14:00"; document.getElementById("fOutTime").value=r.horaSalida||"12:00"; document.getElementById("fMealOnly").value=r.regimenDia||"comida";
+  document.getElementById("fPer").value=r.personas; document.getElementById("fNotas").value=r.notas||""; syncReservationTypeUi(); showModal(); checkModalConflict();
+}
+function showModal(){ document.getElementById("overlay").classList.add("show"); }
+function hideModal(){ document.getElementById("overlay").classList.remove("show"); }
+function readForm(){
+  const tipoReserva=document.getElementById("fTipo").value, entrada=document.getElementById("fIn").value;
+  return { huesped:document.getElementById("fHuesped").value.trim(), tipoReserva, habitacion:tipoReserva==="comidas"?"":document.getElementById("fHab").value, entrada, salida:tipoReserva==="comidas"?entrada:document.getElementById("fOut").value, horaEntrada:document.getElementById("fInTime").value||"14:00", horaSalida:document.getElementById("fOutTime").value||"12:00", regimenDia:document.getElementById("fMealOnly").value||"comida", personas:Math.max(1,parseInt(document.getElementById("fPer").value)||1), notas:document.getElementById("fNotas").value.trim() };
+}
+function checkModalConflict(){ const f=readForm(); const w=document.getElementById("cfWarn"); const person=personForGuest(f.huesped);
+  if(isMealOnly(f)){ w.classList.remove("show"); return; }
+  if(f.habitacion&&!roomAllowedForPerson(f.habitacion,person)){ w.classList.add("show"); w.innerHTML=`⚠ Los niños solo pueden alojarse en <b>${childRoomsLabel()}</b>.`; return; }
+  if(!f.entrada||!f.salida||d(f.salida)<=d(f.entrada)){ w.classList.remove("show"); return; } const rm=roomByCode(f.habitacion); if(!rm){ w.classList.remove("show"); return; } const others=state.reservations.filter(r=>!isMealOnly(r)&&r.habitacion===f.habitacion && r.id!==ui.editing); let bad=null,n=d(f.entrada); while(n<d(f.salida)){ let p=+f.personas; for(const o of others){ if(d(o.entrada)<=n && n<d(o.salida)) p+=(+o.personas||1); } if(p>effCap(rm.codigo)){ bad={day:iso(n),p}; break; } n=addDays(n,1);} if(bad){ w.classList.add("show"); w.innerHTML=`⚠ Ojo: el ${fmtLong(bad.day)} habría ${bad.p} personas en <b>${rm.nombre}</b> y caben ${effCap(rm.codigo)}. Puedes guardar igual como excepción manual.`; } else w.classList.remove("show"); }
+function saveForm(){ const f=readForm(); if(!f.huesped){ toast("Pon un nombre de huésped"); document.getElementById("fHuesped").focus(); return; } if(f.habitacion&&!roomAllowedForPerson(f.habitacion,personForGuest(f.huesped))){ toast("Los niños solo pueden ir a habitaciones infantiles"); return; } if(!f.entrada||(!isMealOnly(f)&&!f.salida)){ toast("Faltan fechas"); return; } if(!isMealOnly(f)&&d(f.salida)<=d(f.entrada)){ toast("La salida debe ser posterior a la entrada"); return; } if(ui.editing){ Object.assign(state.reservations.find(x=>x.id===ui.editing),f); toast("Reserva actualizada"); } else { state.reservations.push(Object.assign({id:newReservationId(),cloudId:newCloudId(),estanciaId:"e"+Date.now()},f)); toast(isMealOnly(f)?"Asistencia a comidas añadida":"Reserva añadida"); } hideModal(); render(); }
+
+function del(id){ state.reservations=state.reservations.filter(r=>r.id!==id); hideModal(); render(); toast("Reserva eliminada"); }
+
+function download(name,text,type){ const b=new Blob([text],{type}); const u=URL.createObjectURL(b); const a=document.createElement("a"); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u); }
+function expJson(){ download("el-taray-reservas.json", JSON.stringify(state,null,2), "application/json"); toast("Copia descargada"); }
+function expCsv(){ const head=["Huésped","Tipo","Habitación","Código","Entrada","Hora entrada","Salida","Hora salida","Noches","Personas","Asistencia","Notas"]; const lines=[head.join(";")]; for(const r of state.reservations.slice().sort((a,b)=>d(a.entrada)-d(b.entrada))){ const rm=roomByCode(r.habitacion); lines.push([r.huesped,isMealOnly(r)?"Solo comidas":"Alojamiento",rm?rm.nombre:"",r.habitacion,r.entrada,r.horaEntrada||"",r.salida,r.horaSalida||"",isMealOnly(r)?0:nights(r),r.personas,isMealOnly(r)?r.regimenDia:"",(r.notas||"").replace(/[;\n]/g," ")].join(";")); } download("el-taray-reservas.csv","\ufeff"+lines.join("\n"),"text/csv"); toast("Tabla exportada"); }
+function importJson(file){ const rd=new FileReader(); rd.onload=()=>{ try{ const obj=JSON.parse(rd.result); if(!obj.reservations||!obj.rooms) throw 0; state=migrate(obj); save(); render(); toast("Copia restaurada"); }catch(e){ toast("Ese archivo no es una copia válida"); } }; rd.readAsText(file); }
+
+let toastT; function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2200); }
+
+window.toast=toast;
+
+document.getElementById("addBtn").onclick=()=>openNew();
+document.getElementById("findBtn").onclick=()=>{ ui.view="huecos"; render(); };
+document.getElementById("saveBtn").onclick=saveForm;
+document.getElementById("cancelBtn").onclick=hideModal;
+document.getElementById("delBtn").onclick=()=>{ if(confirm("¿Eliminar esta reserva?")) del(ui.editing); };
+document.getElementById("overlay").onclick=(e)=>{ if(e.target.id==="overlay") hideModal(); };
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ hideModal(); closeDataPanel(); } });
+["fHab","fIn","fOut","fInTime","fOutTime","fPer"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{ if(id==="fIn"&&document.getElementById("fTipo").value==="comidas") document.getElementById("fOut").value=document.getElementById("fIn").value; checkModalConflict(); }));
+document.getElementById("fTipo").addEventListener("change",syncReservationTypeUi);
+document.getElementById("fGuestSel").addEventListener("change",e=>{
+  if(!e.target.value) return;
+  document.getElementById("fHuesped").value=e.target.value;
+  document.getElementById("fPer").value=personasFromName(e.target.value);
+  const suggested=suggestRoomForGuest(e.target.value); fillRooms(suggested,e.target.value);
+  checkModalConflict();
+});
+document.getElementById("fHuesped").addEventListener("change",e=>{
+  syncGuestSelector(e.target.value);
+  const current=document.getElementById("fHab").value; fillRooms(current,e.target.value);
+  if(!ui.editing){ const suggested=suggestRoomForGuest(e.target.value); if(suggested) document.getElementById("fHab").value=suggested; }
+  checkModalConflict();
+});
+document.getElementById("yearSel").addEventListener("change",e=>{ ui.year=+e.target.value; ui.plan=null; ui.pastePlan=null; render(); });
+document.getElementById("pMinus").onclick=()=>{ const i=document.getElementById("fPer"); i.value=Math.max(1,(+i.value||1)-1); checkModalConflict(); };
+document.getElementById("pPlus").onclick=()=>{ const i=document.getElementById("fPer"); i.value=(+i.value||1)+1; checkModalConflict(); };
+document.querySelectorAll("#viewSeg button").forEach(b=>b.onclick=()=>{ ui.view=b.dataset.view; render(); });
+document.querySelectorAll("#monthSeg button").forEach(b=>b.onclick=()=>{ ui.month=b.dataset.m; render(); });
+document.getElementById("search").addEventListener("input",e=>{ ui.search=e.target.value; render(); });
+const dataOverlay=document.getElementById("dataOverlay");
+function refreshDataPanel(){
+  document.getElementById("clearYearLabel").textContent=ui.year;
+  window.cloudSync?.refreshUi?.();
+}
+function openDataPanel(){ refreshDataPanel(); dataOverlay.classList.add("show"); document.body.classList.add("data-open"); setTimeout(()=>document.getElementById("closeDataBtn").focus(),20); }
+function closeDataPanel(){ dataOverlay.classList.remove("show"); document.body.classList.remove("data-open"); }
+document.getElementById("menuBtn").onclick=e=>{ e.stopPropagation(); openDataPanel(); };
+document.getElementById("closeDataBtn").onclick=closeDataPanel;
+dataOverlay.onclick=e=>{ if(e.target===dataOverlay) closeDataPanel(); };
+document.getElementById("expJson").onclick=()=>expJson();
+document.getElementById("expCsv").onclick=()=>expCsv();
+document.getElementById("impBtn").onclick=()=>document.getElementById("fileIn").click();
+document.getElementById("fileIn").onchange=(e)=>{ if(e.target.files[0]) importJson(e.target.files[0]); e.target.value=""; };
+document.getElementById("clearCalendarBtn").onclick=()=>{
+  const affected=state.reservations.filter(r=>+r.entrada.slice(0,4)===ui.year||+r.salida.slice(0,4)===ui.year).length;
+  if(!affected){ toast("No hay reservas en "+ui.year); return; }
+  if(confirm("¿Eliminar las "+affected+" reservas del calendario de "+ui.year+"? Se conservan familias, reglas y preferencias.")){
+    state.reservations=state.reservations.filter(r=>!(+r.entrada.slice(0,4)===ui.year||+r.salida.slice(0,4)===ui.year));
+    state.aceptados=[]; ui.plan=null; ui.pastePlan=null; save(); render(); refreshDataPanel(); toast("Calendario de "+ui.year+" vaciado");
+  }
+};
+document.getElementById("resetBtn").onclick=()=>{ if(confirm("Esto descarta tus cambios y vuelve a los datos del PDF original. ¿Seguro?")){ state=migrate(JSON.parse(JSON.stringify(SEED))); save(); render(); refreshDataPanel(); toast("Datos originales restaurados"); } };
+
+render();
+</script>
+
+<script type="module">
+const CLOUD_KEY="eltaray_firebase_connection_v1";
+const FIREBASE_VERSION="12.16.0";
+let firebaseModules=null, app=null, auth=null, db=null;
+let unsubscribeSettings=null, unsubscribeReservations=null;
+let initialSettingsReady=false, initialReservationsReady=false;
+let cloudSettings=null, cloudReservations=[];
+let shadowSettings="", shadowReservations=new Map();
+let pushTimer=null, connected=false, initializing=false, lastCloudError="";
+
+const $=id=>document.getElementById(id);
+function deepClone(v){ return JSON.parse(JSON.stringify(v)); }
+function cleanWorkspace(v){ return (v||"el-taray").toLowerCase().trim().replace(/[^a-z0-9_-]+/g,"-").replace(/^-+|-+$/g,"")||"el-taray"; }
+function loadPrefs(){ try{ return JSON.parse(localStorage.getItem(CLOUD_KEY)||"null"); }catch(e){ return null; } }
+function storePrefs(v){ localStorage.setItem(CLOUD_KEY,JSON.stringify(v)); }
+function parseConfig(raw){
+  const text=(raw||"").trim(); if(!text) throw new Error("Pega la configuración de Firebase");
+  try{ const parsed=JSON.parse(text); if(parsed.apiKey&&parsed.projectId) return parsed; }catch(e){}
+  const out={};
+  for(const key of ["apiKey","authDomain","projectId","storageBucket","messagingSenderId","appId","measurementId"]){
+    const m=text.match(new RegExp(key+"\\s*:\\s*[\\\"']([^\\\"']+)[\\\"']")); if(m) out[key]=m[1];
+  }
+  if(!out.apiKey||!out.projectId) throw new Error("No se reconoce el bloque firebaseConfig");
+  return out;
+}
+function currentFormPrefs(){
+  const existing=loadPrefs()||{};
+  let config=existing.config||null;
+  const raw=$("firebaseConfigInput")?.value.trim(); if(raw) config=parseConfig(raw);
+  return {config,email:($("cloudEmail")?.value||existing.email||"").trim().toLowerCase(),workspace:cleanWorkspace($("cloudWorkspace")?.value||existing.workspace)};
+}
+function updateRules(){
+  const email=($("cloudEmail")?.value||loadPrefs()?.email||"correo@ejemplo.com").trim().toLowerCase().replace(/"/g,"");
+  const workspace=cleanWorkspace($("cloudWorkspace")?.value||loadPrefs()?.workspace);
+  const rules=`rules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /workspaces/${workspace}/{document=**} {\n      allow read, write: if request.auth != null\n        && request.auth.token.email == \"${email}\";\n    }\n  }\n}`;
+  if($("cloudRulesPreview")) $("cloudRulesPreview").textContent=rules;
+}
+function setStatus(kind,title,text){
+  const dot=$("cloudDot"), dot2=$("cloudStatusDot");
+  [dot,dot2].forEach(el=>{ if(el){ el.className="cloud-dot"+(kind?" "+kind:""); el.title=title; } });
+  if($("cloudStatusTitle")) $("cloudStatusTitle").textContent=title;
+  if($("cloudStatusText")) $("cloudStatusText").textContent=text;
+}
+function refreshUi(){
+  const prefs=loadPrefs();
+  if($("firebaseConfigInput")) $("firebaseConfigInput").value=prefs?.config?JSON.stringify(prefs.config,null,2):"";
+  if($("cloudEmail")&&!$("cloudEmail").matches(":focus")) $("cloudEmail").value=prefs?.email||"";
+  if($("cloudWorkspace")&&!$("cloudWorkspace").matches(":focus")) $("cloudWorkspace").value=prefs?.workspace||"el-taray";
+  updateRules();
+  const user=auth?.currentUser;
+  if(lastCloudError){ setStatus("error","Error de nube",lastCloudError); }
+  else if(user&&connected){ setStatus("online","Nube conectada",`Sincronización en tiempo real · ${user.email||"usuario compartido"}`); }
+  else if(initializing){ setStatus("connecting","Conectando…","Comprobando Firebase y la sesión compartida."); }
+  else if(prefs?.config){ setStatus("","Nube configurada","Inicia sesión con la contraseña compartida para sincronizar."); }
+  else setStatus("","Modo local","Los cambios solo se guardan en este navegador.");
+  if($("cloudLogout")) $("cloudLogout").style.display=user?"":"none";
+  if($("cloudLogin")) $("cloudLogin").style.display=user?"none":"";
+}
+async function imports(){
+  if(firebaseModules) return firebaseModules;
+  const [appMod,authMod,fsMod]=await Promise.all([
+    import(`https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-app.js`),
+    import(`https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-auth.js`),
+    import(`https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-firestore.js`)
+  ]);
+  firebaseModules={...appMod,...authMod,...fsMod}; return firebaseModules;
+}
+function stripSettings(state){ const clone=deepClone(state); delete clone.reservations; return clone; }
+function cleanReservation(r){
+  const x=deepClone(r); delete x.updatedAt; delete x.updatedBy;
+  if(!x.cloudId) x.cloudId=window.crypto?.randomUUID?"r_"+crypto.randomUUID():"r_"+Date.now().toString(36)+Math.random().toString(36).slice(2);
+  return x;
+}
+function combinedRemote(){
+  const local=window.getElTarayState?.()||{};
+  return {...local,...(cloudSettings||{}),reservations:cloudReservations.map(cleanReservation)};
+}
+function applyRemote(){
+  if(!initialSettingsReady||!initialReservationsReady) return;
+  if(!cloudSettings&&cloudReservations.length===0){
+    connected=true; lastCloudError=""; refreshUi(); schedulePush(true); return;
+  }
+  connected=true; lastCloudError="";
+  const incoming=combinedRemote();
+  shadowSettings=JSON.stringify(stripSettings(incoming));
+  shadowReservations=new Map(incoming.reservations.map(r=>[r.cloudId,JSON.stringify(cleanReservation(r))]));
+  window.applyElTarayCloudState?.(incoming);
+  refreshUi();
+}
+async function initFirebase(){
+  if(initializing||app) return;
+  const prefs=loadPrefs(); if(!prefs?.config) return;
+  initializing=true; refreshUi();
+  try{
+    const F=await imports();
+    app=F.initializeApp(prefs.config);
+    auth=F.getAuth(app); db=F.getFirestore(app);
+    await F.setPersistence(auth,F.browserLocalPersistence);
+    F.onAuthStateChanged(auth,user=>{
+      if(user) startListeners().catch(showError);
+      else{ stopListeners(); connected=false; refreshUi(); }
+    });
+  }catch(e){ showError(e); }
+  finally{ initializing=false; refreshUi(); }
+}
+function stopListeners(){
+  unsubscribeSettings?.(); unsubscribeReservations?.(); unsubscribeSettings=unsubscribeReservations=null;
+  initialSettingsReady=initialReservationsReady=false; cloudSettings=null; cloudReservations=[]; shadowSettings=""; shadowReservations=new Map();
+}
+async function startListeners(){
+  stopListeners();
+  const F=await imports(), prefs=loadPrefs(), workspace=cleanWorkspace(prefs.workspace);
+  const settingsRef=F.doc(db,"workspaces",workspace,"settings","main");
+  const reservationsRef=F.collection(db,"workspaces",workspace,"reservations");
+  unsubscribeSettings=F.onSnapshot(settingsRef,s=>{
+    cloudSettings=s.exists()?s.data():null;
+    if(cloudSettings){ delete cloudSettings.updatedAt; delete cloudSettings.updatedBy; delete cloudSettings.schemaVersion; }
+    initialSettingsReady=true; applyRemote();
+  },showError);
+  unsubscribeReservations=F.onSnapshot(reservationsRef,s=>{
+    cloudReservations=s.docs.map(doc=>{ const data=doc.data(); delete data.updatedAt; delete data.updatedBy; return {...data,cloudId:doc.id}; });
+    initialReservationsReady=true; applyRemote();
+  },showError);
+}
+function schedulePush(immediate=false){
+  if(window.__elTarayCloudApplying||!auth?.currentUser||!initialSettingsReady||!initialReservationsReady) return;
+  clearTimeout(pushTimer); pushTimer=setTimeout(()=>pushState().catch(showError),immediate?0:650);
+}
+async function pushState(){
+  if(!auth?.currentUser||window.__elTarayCloudApplying) return;
+  const F=await imports(), prefs=loadPrefs(), workspace=cleanWorkspace(prefs.workspace);
+  const state=window.getElTarayState?.(); if(!state) return;
+  const settings=stripSettings(state), settingsJson=JSON.stringify(settings);
+  const localMap=new Map();
+  state.reservations.forEach(r=>{ const clean=cleanReservation(r); localMap.set(clean.cloudId,clean); });
+  const operations=[];
+  if(settingsJson!==shadowSettings){ operations.push({type:"set",ref:F.doc(db,"workspaces",workspace,"settings","main"),data:{...settings,schemaVersion:1,updatedAt:F.serverTimestamp(),updatedBy:auth.currentUser.email||auth.currentUser.uid}}); }
+  for(const [cloudId,r] of localMap){ const json=JSON.stringify(r); if(shadowReservations.get(cloudId)!==json) operations.push({type:"set",ref:F.doc(db,"workspaces",workspace,"reservations",cloudId),data:{...r,updatedAt:F.serverTimestamp(),updatedBy:auth.currentUser.email||auth.currentUser.uid}}); }
+  for(const cloudId of shadowReservations.keys()){ if(!localMap.has(cloudId)) operations.push({type:"delete",ref:F.doc(db,"workspaces",workspace,"reservations",cloudId)}); }
+  for(let i=0;i<operations.length;i+=450){
+    const batch=F.writeBatch(db); operations.slice(i,i+450).forEach(op=>op.type==="delete"?batch.delete(op.ref):batch.set(op.ref,op.data)); await batch.commit();
+  }
+  shadowSettings=settingsJson; shadowReservations=new Map([...localMap].map(([id,r])=>[id,JSON.stringify(r)]));
+  setStatus("online","Nube conectada",`Último envío: ${new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}`);
+}
+function humanError(e){
+  const code=e?.code||"";
+  if(code.includes("invalid-credential")||code.includes("wrong-password")) return "Correo o contraseña incorrectos.";
+  if(code.includes("user-not-found")) return "Ese usuario no existe en Firebase Authentication.";
+  if(code.includes("operation-not-allowed")) return "Activa Email/Password en Firebase Authentication.";
+  if(code.includes("permission-denied")) return "Firestore ha rechazado el acceso. Revisa y publica las reglas de seguridad.";
+  if(code.includes("network-request-failed")) return "No hay conexión con Firebase.";
+  return e?.message||"No se ha podido conectar con Firebase.";
+}
+function showError(e){ console.error(e); connected=false; lastCloudError=humanError(e); window.toast?.(lastCloudError); refreshUi(); }
+async function login(){
+  try{
+    lastCloudError=""; refreshUi();
+    const prefs=currentFormPrefs(); if(!prefs.config) throw new Error("Primero guarda la configuración de Firebase"); if(!prefs.email) throw new Error("Escribe el correo compartido");
+    storePrefs(prefs); await initFirebase();
+    const password=$("cloudPassword").value; if(!password) throw new Error("Escribe la contraseña compartida");
+    const F=await imports(); await F.signInWithEmailAndPassword(auth,prefs.email,password); $("cloudPassword").value=""; refreshUi();
+  }catch(e){ showError(e); }
+}
+async function logout(){ try{ lastCloudError=""; if(auth){ const F=await imports(); await F.signOut(auth); } }catch(e){ showError(e); } }
+
+window.cloudSync={schedulePush,refreshUi};
+window.addEventListener("unhandledrejection",e=>{ if(String(e.reason||"").includes("Firebase")) showError(e.reason); });
+
+$("saveCloudConfig")?.addEventListener("click",()=>{
+  try{ const prefs=currentFormPrefs(); if(!prefs.config) throw new Error("Pega la configuración de Firebase"); if(!prefs.email) throw new Error("Escribe el correo compartido"); storePrefs(prefs); updateRules(); alert("Configuración guardada. La página se recargará para activar Firebase."); location.reload(); }catch(e){ showError(e); }
+});
+$("clearCloudConfig")?.addEventListener("click",async()=>{ if(!confirm("¿Quitar la conexión de nube de este navegador? Los datos locales no se borrarán.")) return; await logout(); localStorage.removeItem(CLOUD_KEY); location.reload(); });
+$("cloudLogin")?.addEventListener("click",login);
+$("cloudLogout")?.addEventListener("click",logout);
+$("copyCloudRules")?.addEventListener("click",async()=>{ try{ await navigator.clipboard.writeText($("cloudRulesPreview").textContent); window.toast?.("Reglas copiadas"); }catch(e){ window.toast?.("Selecciona y copia las reglas manualmente"); } });
+[$("cloudEmail"),$("cloudWorkspace")].forEach(el=>el?.addEventListener("input",updateRules));
+
+refreshUi();
+initFirebase();
+</script>
+
+</body>
+</html>
