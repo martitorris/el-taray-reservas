@@ -253,6 +253,13 @@
   .cloud-grid input,.cloud-grid textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 9px;background:#fff}
   .cloud-grid textarea{min-height:105px;resize:vertical;font-family:var(--mono);font-size:11.5px}
   .cloud-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .cloud-identity{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}
+  .cloud-identity>div{background:var(--paper-2);border:1px solid var(--line);border-radius:9px;padding:9px 10px;min-width:0}
+  .cloud-identity small{display:block;color:var(--ink-soft);font-size:10px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+  .cloud-identity strong{display:block;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .admin-details{border:1px solid var(--line);border-radius:11px;background:#fff;overflow:hidden}
+  .admin-details summary{cursor:pointer;padding:12px 14px;font-weight:700;color:var(--sea-deep);background:var(--paper-2)}
+  .admin-details .admin-body{padding:14px}
   .cloud-rules{white-space:pre-wrap;word-break:break-word;background:#2F2A22;color:#F7F1E4;border-radius:9px;padding:11px;font-family:var(--mono);font-size:11px;max-height:210px;overflow:auto}
   .cloud-warn{background:var(--sun-tint);border-left:4px solid var(--sun);padding:9px 11px;border-radius:7px;font-size:12px;color:var(--sun-deep);margin-top:10px}
   .close-data{margin-left:auto;border:1px solid var(--line);background:#fff;border-radius:8px;width:34px;height:34px;font-size:20px;color:var(--ink-soft)}
@@ -264,6 +271,7 @@
     .data-body{padding:13px 14px 22px}
     .data-actions{grid-template-columns:1fr}
     .cloud-grid{grid-template-columns:1fr}
+    .cloud-identity{grid-template-columns:1fr}
     .cloud-grid .wide{grid-column:auto}
     .cloud-buttons .btn{flex:1;justify-content:center}
   }
@@ -373,7 +381,7 @@
     <h2 id="mTitle"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="var(--sun)" stroke-width="2.2"><path d="M3 9l9-6 9 6v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 21V12h6v9"/></svg><span id="mTitleTxt">Nueva reserva</span></h2>
     <div class="form">
       <div class="field"><label>Huésped habitual</label><select id="fGuestSel"><option value="">— Escribir un nombre nuevo —</option></select><div class="guest-helper">Al elegir una persona de la base se aplican automáticamente su rama, tipo, restricciones y preferencias.</div></div>
-      <div class="field"><label>Nombre de la reserva</label><input id="fHuesped" list="guestList" placeholder="p. ej. Tía Dulce y Juan Carlos" autocomplete="off"></div>
+      <div class="field"><label>Nombre de la reserva</label><input id="fHuesped" list="guestList" placeholder="p. ej. Familia A" autocomplete="off"></div>
       <div class="field"><label>Tipo</label><select id="fTipo"><option value="alojamiento">Alojamiento</option><option value="comidas">Solo comidas · no ocupa habitación</option></select></div>
       <div class="field" id="roomField"><label>Habitación</label><select id="fHab"></select></div>
       <div class="two">
@@ -403,10 +411,32 @@
   <div class="data-sheet">
     <div class="data-head">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="var(--sea-deep)" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
-      <h2 id="dataTitle">Datos y sincronización</h2>
+      <h2 id="dataTitle">Acceso y datos</h2>
       <button class="close-data" id="closeDataBtn" aria-label="Cerrar">×</button>
     </div>
     <div class="data-body">
+      <section class="data-section">
+        <h3>Entrar en El Taray compartido</h3>
+        <p class="hint">El proyecto ya viene configurado. En cada móvil u ordenador solo hay que escribir la contraseña compartida la primera vez.</p>
+        <div class="cloud-status" id="cloudStatusBox">
+          <span class="cloud-dot" id="cloudStatusDot"></span>
+          <div><strong id="cloudStatusTitle">Preparando acceso…</strong><small id="cloudStatusText">Comprobando si este dispositivo ya tiene una sesión iniciada.</small></div>
+        </div>
+        <div class="cloud-identity">
+          <div><small>Proyecto</small><strong>el-taray-reservas</strong></div>
+          <div><small>Usuario</small><strong>martitorris@gmail.com</strong></div>
+          <div><small>Espacio</small><strong>el-taray</strong></div>
+        </div>
+        <div class="cloud-grid">
+          <div class="wide"><label>Contraseña compartida</label><input type="password" id="cloudPassword" placeholder="Escribe la contraseña" autocomplete="current-password"></div>
+        </div>
+        <div class="cloud-buttons">
+          <button class="btn primary" id="cloudLogin">Entrar</button>
+          <button class="btn ghost" id="cloudLogout" style="display:none">Cerrar sesión</button>
+        </div>
+        <div class="cloud-warn">La sesión queda recordada en este navegador. La contraseña no está incluida en el HTML ni se guarda en la aplicación.</div>
+      </section>
+
       <section class="data-section">
         <h3>Copias y calendario</h3>
         <p class="hint">Las copias JSON siguen siendo el respaldo recomendado aunque uses la nube.</p>
@@ -415,38 +445,18 @@
           <button class="btn" id="expCsv">Exportar tabla (.csv)</button>
           <button class="btn" id="impBtn">Restaurar copia (.json)</button>
           <button class="btn" id="clearCalendarBtn" style="color:var(--coral);border-color:#E7B7AC">Vaciar calendario de <span id="clearYearLabel"></span></button>
-          <button class="btn" id="resetBtn" style="color:var(--coral);border-color:#E7B7AC;grid-column:1/-1">Volver a los datos originales</button>
         </div>
       </section>
 
-      <section class="data-section">
-        <h3>Nube compartida · Firebase</h3>
-        <p class="hint">Todas las personas usan el mismo enlace, correo compartido y contraseña. La contraseña nunca se guarda dentro del HTML.</p>
-        <div class="cloud-status" id="cloudStatusBox">
-          <span class="cloud-dot" id="cloudStatusDot"></span>
-          <div><strong id="cloudStatusTitle">Modo local</strong><small id="cloudStatusText">Los cambios solo se guardan en este navegador.</small></div>
+      <details class="admin-details">
+        <summary>Administración avanzada</summary>
+        <div class="admin-body">
+          <h3 style="margin-top:0">Reglas de seguridad de Firestore</h3>
+          <p class="hint">Solo hace falta tocarlas al configurar el proyecto o si cambia el correo compartido.</p>
+          <pre class="cloud-rules" id="cloudRulesPreview"></pre>
+          <div class="cloud-buttons"><button class="btn sm" id="copyCloudRules">Copiar reglas</button></div>
         </div>
-        <div class="cloud-grid">
-          <div class="wide"><label>Configuración Firebase</label><textarea id="firebaseConfigInput" placeholder='Pega aquí el bloque firebaseConfig de la consola de Firebase'></textarea></div>
-          <div><label>Correo compartido</label><input type="email" id="cloudEmail" placeholder="familia@ejemplo.com" autocomplete="username"></div>
-          <div><label>Espacio compartido</label><input id="cloudWorkspace" value="el-taray" placeholder="el-taray"></div>
-          <div class="wide"><label>Contraseña compartida</label><input type="password" id="cloudPassword" placeholder="Solo se usa para iniciar sesión" autocomplete="current-password"></div>
-        </div>
-        <div class="cloud-buttons">
-          <button class="btn" id="saveCloudConfig">Guardar configuración</button>
-          <button class="btn primary" id="cloudLogin">Conectar y sincronizar</button>
-          <button class="btn ghost" id="cloudLogout" style="display:none">Cerrar sesión</button>
-          <button class="btn ghost" id="clearCloudConfig">Quitar nube de este navegador</button>
-        </div>
-        <div class="cloud-warn">La primera persona que conecte un espacio vacío subirá los datos que tenga en su navegador. Haz primero una copia JSON y empieza desde la versión que consideres correcta.</div>
-      </section>
-
-      <section class="data-section">
-        <h3>Reglas de seguridad de Firestore</h3>
-        <p class="hint">Copia estas reglas en Firestore → Reglas. Se actualizan con el correo y el nombre de espacio escritos arriba.</p>
-        <pre class="cloud-rules" id="cloudRulesPreview"></pre>
-        <div class="cloud-buttons"><button class="btn sm" id="copyCloudRules">Copiar reglas</button></div>
-      </section>
+      </details>
     </div>
   </div>
 </div>
@@ -455,7 +465,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const SEED = {"rooms": [{"codigo": "PA01", "tipo": "Standard", "capacidad": 4, "nombre": "MURCIANOS"}, {"codigo": "PA02", "tipo": "Matrimonio", "capacidad": 2, "nombre": "BISA"}, {"codigo": "PA03", "tipo": "Standard", "capacidad": 4, "nombre": "MADRILEÑOS"}, {"codigo": "PA04", "tipo": "Matrimonio", "capacidad": 2, "nombre": "LOLIN"}, {"codigo": "PA05", "tipo": "Matrimonio", "capacidad": 3, "nombre": "ANGELITA"}, {"codigo": "PA06", "tipo": "Matrimonio", "capacidad": 2, "nombre": "DULCE"}, {"codigo": "PA07", "tipo": "Matrimonio", "capacidad": 2, "nombre": "SÁNCHEZ"}, {"codigo": "PA08", "tipo": "Standard", "capacidad": 5, "nombre": "MUCHACHAS"}, {"codigo": "PA09", "tipo": "Standard", "capacidad": 4, "nombre": "PASO"}, {"codigo": "PA10", "tipo": "Standard", "capacidad": 6, "nombre": "NIÑAS"}, {"codigo": "PA11", "tipo": "Matrimonio", "capacidad": 2, "nombre": "LOSADA"}, {"codigo": "PA12", "tipo": "Matrimonio", "capacidad": 2, "nombre": "ANTIGUA ANGELITA"}, {"codigo": "PA13", "tipo": "Matrimonio", "capacidad": 2, "nombre": "ANTIGUA DULCE"}, {"codigo": "PB01", "tipo": "Matrimonio", "capacidad": 2, "nombre": "BEATRIZ"}, {"codigo": "PB02", "tipo": "Matrimonio", "capacidad": 2, "nombre": "MIGUEL"}, {"codigo": "PB03", "tipo": "Matrimonio", "capacidad": 2, "nombre": "MONCHO"}], "reservations": [{"id": 1, "huesped": "Dulce Y Oscar", "habitacion": "PA01", "entrada": "2026-07-10", "salida": "2026-07-12", "personas": 2, "notas": ""}, {"id": 2, "huesped": "Dulcecita Y Oscarín", "habitacion": "PA08", "entrada": "2026-07-10", "salida": "2026-08-10", "personas": 2, "notas": ""}, {"id": 3, "huesped": "Tío Moncho", "habitacion": "PB03", "entrada": "2026-07-10", "salida": "2026-08-17", "personas": 1, "notas": ""}, {"id": 4, "huesped": "Tía Dulce y Juan Carlos", "habitacion": "PA06", "entrada": "2026-07-10", "salida": "2026-08-31", "personas": 2, "notas": ""}, {"id": 5, "huesped": "Marta Y Javi", "habitacion": "PA02", "entrada": "2026-07-12", "salida": "2026-08-10", "personas": 2, "notas": ""}, {"id": 6, "huesped": "Livia Y Miguel", "habitacion": "PA08", "entrada": "2026-07-12", "salida": "2026-08-10", "personas": 2, "notas": ""}, {"id": 7, "huesped": "Tía LOLIN", "habitacion": "PA04", "entrada": "2026-07-20", "salida": "2026-08-31", "personas": 1, "notas": ""}, {"id": 8, "huesped": "Tía Angelita", "habitacion": "PA05", "entrada": "2026-07-20", "salida": "2026-08-31", "personas": 1, "notas": ""}, {"id": 9, "huesped": "Tío José María y Tía Beatriz", "habitacion": "PB01", "entrada": "2026-07-26", "salida": "2026-08-22", "personas": 2, "notas": ""}, {"id": 10, "huesped": "Claudia", "habitacion": "PB02", "entrada": "2026-07-26", "salida": "2026-08-05", "personas": 1, "notas": ""}, {"id": 11, "huesped": "Santiago y Laura", "habitacion": "PA07", "entrada": "2026-08-02", "salida": "2026-08-07", "personas": 2, "notas": ""}, {"id": 12, "huesped": "James", "habitacion": "PA10", "entrada": "2026-08-02", "salida": "2026-08-07", "personas": 1, "notas": ""}, {"id": 13, "huesped": "Claudia", "habitacion": "PA13", "entrada": "2026-08-06", "salida": "2026-08-11", "personas": 1, "notas": ""}, {"id": 14, "huesped": "Marta Doval", "habitacion": "PA11", "entrada": "2026-08-06", "salida": "2026-08-11", "personas": 1, "notas": ""}, {"id": 15, "huesped": "Enma", "habitacion": "PA10", "entrada": "2026-08-06", "salida": "2026-08-11", "personas": 1, "notas": ""}, {"id": 16, "huesped": "Tío Miguel y Tía Pepita", "habitacion": "PB02", "entrada": "2026-08-06", "salida": "2026-08-11", "personas": 2, "notas": ""}, {"id": 17, "huesped": "Juan", "habitacion": "PA12", "entrada": "2026-08-07", "salida": "2026-08-09", "personas": 1, "notas": ""}, {"id": 18, "huesped": "Dina", "habitacion": "PA07", "entrada": "2026-08-07", "salida": "2026-08-09", "personas": 1, "notas": ""}, {"id": 19, "huesped": "Claudia", "habitacion": "PB02", "entrada": "2026-08-11", "salida": "2026-08-22", "personas": 1, "notas": ""}, {"id": 20, "huesped": "José María Soto", "habitacion": "PA02", "entrada": "2026-08-13", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 21, "huesped": "Quique Doval", "habitacion": "PA07", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 22, "huesped": "Ruth", "habitacion": "PA09", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 23, "huesped": "Pablo", "habitacion": "PA10", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 24, "huesped": "Alfonso", "habitacion": "PA10", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 25, "huesped": "Gonzalo", "habitacion": "PA10", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 26, "huesped": "Jaime", "habitacion": "PA10", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 27, "huesped": "Carlota", "habitacion": "PA09", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 28, "huesped": "Pilar", "habitacion": "PA09", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 29, "huesped": "Beatriz y Jaime", "habitacion": "PA11", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 2, "notas": ""}, {"id": 30, "huesped": "Irene", "habitacion": "PA09", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 31, "huesped": "Jorge", "habitacion": "PA10", "entrada": "2026-08-14", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 32, "huesped": "Sole", "habitacion": "PA01", "entrada": "2026-08-16", "salida": "2026-08-28", "personas": 1, "notas": ""}, {"id": 33, "huesped": "Tere y Víctor", "habitacion": "PA12", "entrada": "2026-08-17", "salida": "2026-08-24", "personas": 2, "notas": ""}, {"id": 34, "huesped": "Carmen", "habitacion": "PA08", "entrada": "2026-08-17", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 35, "huesped": "Víctor", "habitacion": "PA08", "entrada": "2026-08-17", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 36, "huesped": "Miguel y Guille", "habitacion": "PA03", "entrada": "2026-08-17", "salida": "2026-08-23", "personas": 2, "notas": ""}, {"id": 37, "huesped": "María", "habitacion": "PA01", "entrada": "2026-08-17", "salida": "2026-08-23", "personas": 1, "notas": ""}, {"id": 38, "huesped": "María y Sergio", "habitacion": "PA01", "entrada": "2026-08-17", "salida": "2026-08-27", "personas": 2, "notas": ""}, {"id": 39, "huesped": "Amparo y José", "habitacion": "PB03", "entrada": "2026-08-17", "salida": "2026-08-24", "personas": 2, "notas": ""}, {"id": 40, "huesped": "Hugo", "habitacion": "PA10", "entrada": "2026-08-17", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 41, "huesped": "Eric", "habitacion": "PA08", "entrada": "2026-08-17", "salida": "2026-08-24", "personas": 1, "notas": ""}, {"id": 42, "huesped": "Gonzalo Doval", "habitacion": "PA07", "entrada": "2026-08-17", "salida": "2026-08-23", "personas": 1, "notas": ""}, {"id": 43, "huesped": "Gustavo y Roció", "habitacion": "PA13", "entrada": "2026-08-18", "salida": "2026-08-28", "personas": 2, "notas": ""}, {"id": 44, "huesped": "María, lía, Iría", "habitacion": "PA08", "entrada": "2026-08-18", "salida": "2026-08-28", "personas": 3, "notas": ""}, {"id": 45, "huesped": "Juan", "habitacion": "PA03", "entrada": "2026-08-21", "salida": "2026-08-22", "personas": 1, "notas": ""}, {"id": 46, "huesped": "Dulce y Oscar", "habitacion": "PA12", "entrada": "2026-08-24", "salida": "2026-08-30", "personas": 2, "notas": ""}, {"id": 47, "huesped": "Dulcecita Y Oscarín", "habitacion": "PA09", "entrada": "2026-08-24", "salida": "2026-08-30", "personas": 2, "notas": ""}], "reglas": [{"huesped": "Tío Moncho", "room": "PB03"}, {"huesped": "Tía Dulce y Juan Carlos", "room": "PA06"}, {"huesped": "Tía LOLIN", "room": "PA04"}, {"huesped": "Tía Angelita", "room": "PA05"}, {"huesped": "Tío José María y Tía Beatriz", "room": "PB01"}, {"huesped": "Tío Miguel y Tía Pepita", "room": "PB02"}], "prefs": [], "aceptados": ["PA08|2026-08-18|2026-08-23|6"]};
+const SEED = {"rooms":[{"codigo":"PA01","tipo":"Standard","capacidad":4,"nombre":"MURCIANOS"},{"codigo":"PA02","tipo":"Matrimonio","capacidad":2,"nombre":"BISA"},{"codigo":"PA03","tipo":"Standard","capacidad":4,"nombre":"MADRILEÑOS"},{"codigo":"PA04","tipo":"Matrimonio","capacidad":2,"nombre":"LOLIN"},{"codigo":"PA05","tipo":"Matrimonio","capacidad":3,"nombre":"ANGELITA"},{"codigo":"PA06","tipo":"Matrimonio","capacidad":2,"nombre":"DULCE"},{"codigo":"PA07","tipo":"Matrimonio","capacidad":2,"nombre":"SÁNCHEZ"},{"codigo":"PA08","tipo":"Standard","capacidad":5,"nombre":"MUCHACHAS"},{"codigo":"PA09","tipo":"Standard","capacidad":4,"nombre":"PASO"},{"codigo":"PA10","tipo":"Standard","capacidad":6,"nombre":"NIÑAS"},{"codigo":"PA11","tipo":"Matrimonio","capacidad":2,"nombre":"LOSADA"},{"codigo":"PA12","tipo":"Matrimonio","capacidad":2,"nombre":"ANTIGUA ANGELITA"},{"codigo":"PA13","tipo":"Matrimonio","capacidad":2,"nombre":"ANTIGUA DULCE"},{"codigo":"PB01","tipo":"Matrimonio","capacidad":2,"nombre":"BEATRIZ"},{"codigo":"PB02","tipo":"Matrimonio","capacidad":2,"nombre":"MIGUEL"},{"codigo":"PB03","tipo":"Matrimonio","capacidad":2,"nombre":"MONCHO"}],"reservations":[],"reglas":[],"prefs":[],"aceptados":[],"familias":[],"personas":[],"ramas":[],"compatGroups":[],"supletoria":{"room":null},"comidasConfig":{},"pendingText":""};
 const KEY = "eltaray_reservas_v4";
 const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 const MESES_L = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
@@ -468,8 +478,8 @@ function isChildPerson(person){ return !!person && person.tipo==="ninos"; }
 function roomAllowedForPerson(code,person){ return !code || !isChildPerson(person) || CHILD_ROOM_CODES.has(code); }
 function childRoomsLabel(){ return "MUCHACHAS, PASO, NIÑAS, MURCIANOS o MADRILEÑOS"; }
 
-const BASE_PERSONAS = [{"nombre": "Dulce y Oscar", "aliases": ["Dulce Y Oscar"], "rama": "Romero", "tipo": "adultos", "prefs": ["PA02"]}, {"nombre": "Dulcecita y Oscarín", "aliases": ["Dulcecita Y Oscarín"], "rama": "Romero", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Tío Moncho y Tía Violeta", "aliases": ["Tío Moncho", "Tía Violeta"], "rama": "Reina", "tipo": "adultos", "prefs": ["PB03"]}, {"nombre": "Tía Dulce y Juan Carlos", "aliases": [], "rama": "Romero", "tipo": "adultos", "prefs": ["PA06"]}, {"nombre": "Marta y Javi", "aliases": ["Marta Y Javi"], "rama": "Romero", "tipo": "adultos", "prefs": ["PA13"]}, {"nombre": "Livia y Miguel", "aliases": ["Livia Y Miguel"], "rama": "Romero", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Tía Lolín", "aliases": ["Tía LOLIN", "Tía Lolin"], "rama": "García", "tipo": "adultos", "prefs": ["PA04"]}, {"nombre": "Tía Angelita", "aliases": [], "rama": "Soto", "tipo": "adultos", "prefs": ["PA05"]}, {"nombre": "Tío José María y Tía Beatriz", "aliases": ["Tía Beatriz y Tío José María"], "rama": "González", "tipo": "adultos", "prefs": ["PB01"]}, {"nombre": "Claudia", "aliases": [], "rama": "González", "tipo": "adultos", "prefs": ["PA11"]}, {"nombre": "Santiago y Laura", "aliases": [], "rama": "García", "tipo": "adultos", "prefs": ["PA07"]}, {"nombre": "James", "aliases": [], "rama": "García", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Marta Doval", "aliases": [], "rama": "Doval", "tipo": "adultos", "prefs": ["PA12"]}, {"nombre": "Enma", "aliases": ["Emma"], "rama": "Doval", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Tío Miguel y Tía Pepita", "aliases": [], "rama": "Doval", "tipo": "adultos", "prefs": ["PB02"]}, {"nombre": "Juan", "aliases": [], "rama": "González", "tipo": "adultos", "prefs": ["PA07"]}, {"nombre": "Dina", "aliases": [], "rama": "González", "tipo": "adultos", "prefs": ["PA03"]}, {"nombre": "Juan y Dina", "aliases": ["Dina y Juan"], "rama": "González", "tipo": "adultos", "prefs": []}, {"nombre": "José María Soto", "aliases": ["Jose María Soto", "José Maria Soto"], "rama": "Soto", "tipo": "adultos", "prefs": []}, {"nombre": "Quique Doval", "aliases": ["Quique"], "rama": "Sánchez", "tipo": "adultos", "prefs": ["PA07"]}, {"nombre": "Ruth", "aliases": [], "rama": "Soto", "tipo": "ninos", "prefs": ["PA09"]}, {"nombre": "Pablo", "aliases": [], "rama": "Sánchez", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Alfonso", "aliases": [], "rama": "Losada", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Gonzalo", "aliases": [], "rama": "Losada", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Jaime", "aliases": [], "rama": "Losada", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Carlota", "aliases": [], "rama": "Sánchez", "tipo": "ninos", "prefs": ["PA09"]}, {"nombre": "Pilar", "aliases": [], "rama": "Sánchez", "tipo": "ninos", "prefs": ["PA09"]}, {"nombre": "Beatriz y Jaime", "aliases": [], "rama": "Losada", "tipo": "adultos", "prefs": ["PA11"]}, {"nombre": "Irene", "aliases": [], "rama": "Losada", "tipo": "ninos", "prefs": ["PA09"]}, {"nombre": "Jorge", "aliases": [], "rama": "Losada", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Sole", "aliases": ["Soledad"], "rama": "González", "tipo": "adultos", "prefs": ["PA01"]}, {"nombre": "Tere y Víctor", "aliases": ["Tere y Victor"], "rama": "Losada", "tipo": "adultos", "prefs": ["PB02"]}, {"nombre": "Carmen", "aliases": [], "rama": "Losada", "tipo": "ninos", "prefs": ["PA08"]}, {"nombre": "Víctor", "aliases": ["Victor"], "rama": "Losada", "tipo": "ninos", "prefs": ["PA08"]}, {"nombre": "Miguel y Guille", "aliases": ["Miguel Ángel y Guille", "Miguel Angel y Guille"], "rama": "González", "tipo": "adultos", "prefs": []}, {"nombre": "María", "aliases": ["María sola"], "rama": "González", "tipo": "adultos", "prefs": ["PA01"]}, {"nombre": "María y Jorge", "aliases": [], "rama": "González", "tipo": "adultos", "prefs": []}, {"nombre": "María (hija) y Sergio", "aliases": ["María y Sergio", "Maria y Sergio"], "rama": "González", "tipo": "ninos", "prefs": ["PA01"]}, {"nombre": "Amparo y José", "aliases": ["Amparo y Jose"], "rama": "González", "tipo": "adultos", "prefs": ["PB03"]}, {"nombre": "Hugo", "aliases": [], "rama": "González", "tipo": "ninos", "prefs": ["PA10"]}, {"nombre": "Eric", "aliases": ["Éric"], "rama": "González", "tipo": "ninos", "prefs": ["PA08"]}, {"nombre": "Gonzalo Doval", "aliases": [], "rama": "Sánchez", "tipo": "adultos", "prefs": ["PA07"]}, {"nombre": "Gus y Rocío", "aliases": ["Gustavo y Rocío", "Gustavo y Roció", "Gus y Rocio"], "rama": "Losada", "tipo": "adultos", "prefs": ["PA12"]}, {"nombre": "María, Lía e Iría", "aliases": ["María, lía, Iría", "María, Iría, Lía", "Lía, María, Iría", "Lía, Iría, María", "Iría, María, Lía", "Iría, Lía, María"], "rama": "Losada", "tipo": "ninos", "prefs": ["PA08", "PA03"]}];
-const BASE_RAMAS = [{"nombre": "Reina", "modo": "manual"}, {"nombre": "González", "modo": "flexible"}, {"nombre": "García", "modo": "flexible"}, {"nombre": "Soto", "modo": "flexible"}, {"nombre": "Romero", "modo": "flexible"}, {"nombre": "Doval", "modo": "flexible"}, {"nombre": "Sánchez", "modo": "flexible"}, {"nombre": "Losada", "modo": "flexible"}];
+const BASE_PERSONAS = [];
+const BASE_RAMAS = [];
 
 
 let reservationIdSequence=0;
@@ -499,30 +509,7 @@ function familyMode(f){
 }
 function migrate(s){
   s.reglas=s.reglas||[]; s.prefs=s.prefs||[]; s.aceptados=s.aceptados||[];
-  if(!s.familias){
-    s.familias=[
-      {nombre:"Reina", room:"PB03", miembros:["Tío Moncho y Tía Violeta","Tío Moncho","Tía Violeta"]},
-      {nombre:"González", room:"PB01", miembros:["Tío José María y Tía Beatriz","Tía Beatriz y Tío José María"]},
-      {nombre:"García", room:"PA04", miembros:["Tía LOLIN","Tía Lolin"]},
-      {nombre:"Soto", room:"PA05", miembros:["Tía Angelita"]},
-      {nombre:"Romero", room:"PA06", miembros:["Tía Dulce y Juan Carlos"]},
-      {nombre:"Doval (Miguel)", room:"PB02", miembros:["Tío Miguel y Tía Pepita"]},
-      {nombre:"Sánchez", room:"PA07", miembros:["Quique Doval","Quique","Gonzalo Doval"]},
-      {nombre:"Losada", room:"PA11", miembros:[]},
-      {nombre:"Murcianos", room:"PA01", miembros:[]},
-      {nombre:"Bisa", room:"PA02", miembros:[]},
-      {nombre:"Madrileños", room:"PA03", miembros:[]},
-      {nombre:"Muchachas", room:"PA08", miembros:[]},
-      {nombre:"Paso", room:"PA09", miembros:[]},
-      {nombre:"Niñas", room:"PA10", miembros:[]},
-      {nombre:"Antigua Angelita", room:"PA12", miembros:[]},
-      {nombre:"Antigua Dulce", room:"PA13", miembros:[]}
-    ];
-    s.prefs=[]
-      .concat(["Alfonso","Hugo","Pablo","Livia","Oscarín","Dulcecita","Enma","Emma","Gonzalo","Jaime","Jorge","James"].map(n=>({huesped:n,room:"PA10"})))
-      .concat(["Ruth","Irene","Carlota","Pilar"].map(n=>({huesped:n,room:"PA09"})))
-      .concat(["lía","Iría","Eric","Carmen","Víctor"].map(n=>({huesped:n,room:"PA08"})));
-  }
+  if(!Array.isArray(s.familias)) s.familias=[];
   s.familias.forEach(f=>{ f.modo=familyMode(f); f.miembros=f.miembros||[]; });
   if(!Array.isArray(s.personas)||!s.personas.length) s.personas=JSON.parse(JSON.stringify(BASE_PERSONAS));
   else s.personas=s.personas.map(p=>({nombre:p.nombre||"",aliases:Array.isArray(p.aliases)?p.aliases:[],rama:p.rama||"",tipo:p.tipo||"adultos",prefs:Array.isArray(p.prefs)?p.prefs:[]}));
@@ -1154,7 +1141,7 @@ function renderComidas(){
 
 function renderDistribuir(){
   document.getElementById("view").innerHTML=`<div class="dist">
-    <div class="cardbox"><h3>Meter lista de personas</h3><p class="hint">Una persona o grupo por línea: <b>Nombre ; entrada ; salida ; personas</b>. Se reparte por fecha de llegada. Quienes no tienen habitación fija pueden cambiar de habitación durante la estancia cuando sea necesario.</p><textarea id="pasteBox" placeholder="Ruth ; 14/08 ; 24/08\nBeatriz y Jaime ; 14/08 ; 24/08 ; 2" style="width:100%;min-height:140px;border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:#fff;font-family:var(--mono);font-size:13px;resize:vertical">${(state.pendingText||"").replace(/&/g,"&amp;").replace(/</g,"&lt;")}</textarea><div class="distactions" style="margin-top:10px"><button class="btn primary" id="runPaste">Previsualizar distribución</button><span class="hint">Temporada ${ui.year}. La propuesta se puede corregir manualmente antes de aplicar.</span></div><div id="pastePreview"></div></div>
+    <div class="cardbox"><h3>Meter lista de personas</h3><p class="hint">Una persona o grupo por línea: <b>Nombre ; entrada ; salida ; personas</b>. Se reparte por fecha de llegada. Quienes no tienen habitación fija pueden cambiar de habitación durante la estancia cuando sea necesario.</p><textarea id="pasteBox" placeholder="Persona A ; 14/08 ; 24/08\nPareja B ; 14/08 ; 24/08 ; 2" style="width:100%;min-height:140px;border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:#fff;font-family:var(--mono);font-size:13px;resize:vertical">${(state.pendingText||"").replace(/&/g,"&amp;").replace(/</g,"&lt;")}</textarea><div class="distactions" style="margin-top:10px"><button class="btn primary" id="runPaste">Previsualizar distribución</button><span class="hint">Temporada ${ui.year}. La propuesta se puede corregir manualmente antes de aplicar.</span></div><div id="pastePreview"></div></div>
     <div class="distactions"><button class="btn primary" id="runDist">Redistribuir temporada ${ui.year}</button><button class="btn ghost" id="clearDist">Vaciar distribución</button><span class="hint">Las reservas no se borran al vaciar: pasan a “Sin asignar”.</span></div><div id="proposalBox"></div>
   </div>`;
   const box=document.getElementById("pasteBox"); box.oninput=()=>{ state.pendingText=box.value; save(); };
@@ -1307,6 +1294,8 @@ function refreshDataPanel(){
 }
 function openDataPanel(){ refreshDataPanel(); dataOverlay.classList.add("show"); document.body.classList.add("data-open"); setTimeout(()=>document.getElementById("closeDataBtn").focus(),20); }
 function closeDataPanel(){ dataOverlay.classList.remove("show"); document.body.classList.remove("data-open"); }
+window.openElTarayDataPanel=openDataPanel;
+window.closeElTarayDataPanel=closeDataPanel;
 document.getElementById("menuBtn").onclick=e=>{ e.stopPropagation(); openDataPanel(); };
 document.getElementById("closeDataBtn").onclick=closeDataPanel;
 dataOverlay.onclick=e=>{ if(e.target===dataOverlay) closeDataPanel(); };
@@ -1322,26 +1311,32 @@ document.getElementById("clearCalendarBtn").onclick=()=>{
     state.aceptados=[]; ui.plan=null; ui.pastePlan=null; save(); render(); refreshDataPanel(); toast("Calendario de "+ui.year+" vaciado");
   }
 };
-document.getElementById("resetBtn").onclick=()=>{ if(confirm("Esto descarta tus cambios y vuelve a los datos del PDF original. ¿Seguro?")){ state=migrate(JSON.parse(JSON.stringify(SEED))); save(); render(); refreshDataPanel(); toast("Datos originales restaurados"); } };
-
 render();
 </script>
 
 <script type="module">
 const CLOUD_KEY="eltaray_firebase_connection_v1";
 const FIREBASE_VERSION="12.16.0";
+const DEFAULT_CLOUD_PREFS=Object.freeze({
+  config:Object.freeze({"apiKey":"AIzaSyBGoEwuO90cwpEGGiB0UV6gBg4q4sH0avE","authDomain":"el-taray-reservas.firebaseapp.com","projectId":"el-taray-reservas","storageBucket":"el-taray-reservas.firebasestorage.app","messagingSenderId":"1051718403578","appId":"1:1051718403578:web:def124a33dc9b8e747d043"}),
+  email:"martitorris@gmail.com",
+  workspace:"el-taray"
+});
+const CLOUD_BOOTSTRAP_ALLOWED=false;
 let firebaseModules=null, app=null, auth=null, db=null;
 let unsubscribeSettings=null, unsubscribeReservations=null;
 let initialSettingsReady=false, initialReservationsReady=false;
 let cloudSettings=null, cloudReservations=[];
 let shadowSettings="", shadowReservations=new Map();
-let pushTimer=null, connected=false, initializing=false, lastCloudError="";
+let pushTimer=null, connected=false, initializing=false, lastCloudError="", cloudEmptyLocked=false;
 
 const $=id=>document.getElementById(id);
 function deepClone(v){ return JSON.parse(JSON.stringify(v)); }
 function cleanWorkspace(v){ return (v||"el-taray").toLowerCase().trim().replace(/[^a-z0-9_-]+/g,"-").replace(/^-+|-+$/g,"")||"el-taray"; }
-function loadPrefs(){ try{ return JSON.parse(localStorage.getItem(CLOUD_KEY)||"null"); }catch(e){ return null; } }
-function storePrefs(v){ localStorage.setItem(CLOUD_KEY,JSON.stringify(v)); }
+function loadPrefs(){
+  return {config:{...DEFAULT_CLOUD_PREFS.config},email:DEFAULT_CLOUD_PREFS.email,workspace:DEFAULT_CLOUD_PREFS.workspace};
+}
+function storePrefs(){ localStorage.setItem(CLOUD_KEY,JSON.stringify(loadPrefs())); }
 function parseConfig(raw){
   const text=(raw||"").trim(); if(!text) throw new Error("Pega la configuración de Firebase");
   try{ const parsed=JSON.parse(text); if(parsed.apiKey&&parsed.projectId) return parsed; }catch(e){}
@@ -1352,16 +1347,11 @@ function parseConfig(raw){
   if(!out.apiKey||!out.projectId) throw new Error("No se reconoce el bloque firebaseConfig");
   return out;
 }
-function currentFormPrefs(){
-  const existing=loadPrefs()||{};
-  let config=existing.config||null;
-  const raw=$("firebaseConfigInput")?.value.trim(); if(raw) config=parseConfig(raw);
-  return {config,email:($("cloudEmail")?.value||existing.email||"").trim().toLowerCase(),workspace:cleanWorkspace($("cloudWorkspace")?.value||existing.workspace)};
-}
+function currentFormPrefs(){ return loadPrefs(); }
 function updateRules(){
-  const email=($("cloudEmail")?.value||loadPrefs()?.email||"correo@ejemplo.com").trim().toLowerCase().replace(/"/g,"");
-  const workspace=cleanWorkspace($("cloudWorkspace")?.value||loadPrefs()?.workspace);
-  const rules=`rules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /workspaces/${workspace}/{document=**} {\n      allow read, write: if request.auth != null\n        && request.auth.token.email == \"${email}\";\n    }\n  }\n}`;
+  const email=DEFAULT_CLOUD_PREFS.email;
+  const workspace=DEFAULT_CLOUD_PREFS.workspace;
+  const rules=`rules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /workspaces/${workspace}/{document=**} {\n      allow read, write: if request.auth != null\n        && request.auth.token.email == "${email}";\n    }\n  }\n}`;
   if($("cloudRulesPreview")) $("cloudRulesPreview").textContent=rules;
 }
 function setStatus(kind,title,text){
@@ -1380,8 +1370,7 @@ function refreshUi(){
   if(lastCloudError){ setStatus("error","Error de nube",lastCloudError); }
   else if(user&&connected){ setStatus("online","Nube conectada",`Sincronización en tiempo real · ${user.email||"usuario compartido"}`); }
   else if(initializing){ setStatus("connecting","Conectando…","Comprobando Firebase y la sesión compartida."); }
-  else if(prefs?.config){ setStatus("","Nube configurada","Inicia sesión con la contraseña compartida para sincronizar."); }
-  else setStatus("","Modo local","Los cambios solo se guardan en este navegador.");
+  else { setStatus("","Contraseña necesaria","Escribe la contraseña compartida para ver y editar los datos en la nube."); }
   if($("cloudLogout")) $("cloudLogout").style.display=user?"":"none";
   if($("cloudLogin")) $("cloudLogin").style.display=user?"none":"";
 }
@@ -1407,14 +1396,22 @@ function combinedRemote(){
 function applyRemote(){
   if(!initialSettingsReady||!initialReservationsReady) return;
   if(!cloudSettings&&cloudReservations.length===0){
-    connected=true; lastCloudError=""; refreshUi(); schedulePush(true); return;
+    connected=true; lastCloudError="";
+    if(CLOUD_BOOTSTRAP_ALLOWED){ cloudEmptyLocked=false; refreshUi(); schedulePush(true); }
+    else{
+      cloudEmptyLocked=true;
+      lastCloudError="La nube está vacía. Haz primero la carga inicial desde la versión privada o restaura una copia JSON desde el dispositivo administrador.";
+      refreshUi();
+    }
+    return;
   }
-  connected=true; lastCloudError="";
+  connected=true; cloudEmptyLocked=false; lastCloudError="";
   const incoming=combinedRemote();
   shadowSettings=JSON.stringify(stripSettings(incoming));
   shadowReservations=new Map(incoming.reservations.map(r=>[r.cloudId,JSON.stringify(cleanReservation(r))]));
   window.applyElTarayCloudState?.(incoming);
   refreshUi();
+  setTimeout(()=>window.closeElTarayDataPanel?.(),300);
 }
 async function initFirebase(){
   if(initializing||app) return;
@@ -1427,7 +1424,10 @@ async function initFirebase(){
     await F.setPersistence(auth,F.browserLocalPersistence);
     F.onAuthStateChanged(auth,user=>{
       if(user) startListeners().catch(showError);
-      else{ stopListeners(); connected=false; refreshUi(); }
+      else{
+        stopListeners(); connected=false; refreshUi();
+        setTimeout(()=>window.openElTarayDataPanel?.(),120);
+      }
     });
   }catch(e){ showError(e); }
   finally{ initializing=false; refreshUi(); }
@@ -1452,7 +1452,7 @@ async function startListeners(){
   },showError);
 }
 function schedulePush(immediate=false){
-  if(window.__elTarayCloudApplying||!auth?.currentUser||!initialSettingsReady||!initialReservationsReady) return;
+  if(window.__elTarayCloudApplying||cloudEmptyLocked||!auth?.currentUser||!initialSettingsReady||!initialReservationsReady) return;
   clearTimeout(pushTimer); pushTimer=setTimeout(()=>pushState().catch(showError),immediate?0:650);
 }
 async function pushState(){
@@ -1485,25 +1485,24 @@ function showError(e){ console.error(e); connected=false; lastCloudError=humanEr
 async function login(){
   try{
     lastCloudError=""; refreshUi();
-    const prefs=currentFormPrefs(); if(!prefs.config) throw new Error("Primero guarda la configuración de Firebase"); if(!prefs.email) throw new Error("Escribe el correo compartido");
-    storePrefs(prefs); await initFirebase();
+    const prefs=currentFormPrefs();
+    storePrefs(); await initFirebase();
     const password=$("cloudPassword").value; if(!password) throw new Error("Escribe la contraseña compartida");
+    const button=$("cloudLogin"); if(button){ button.disabled=true; button.textContent="Entrando…"; }
     const F=await imports(); await F.signInWithEmailAndPassword(auth,prefs.email,password); $("cloudPassword").value=""; refreshUi();
   }catch(e){ showError(e); }
+  finally{ const button=$("cloudLogin"); if(button){ button.disabled=false; button.textContent="Entrar"; } }
 }
 async function logout(){ try{ lastCloudError=""; if(auth){ const F=await imports(); await F.signOut(auth); } }catch(e){ showError(e); } }
 
 window.cloudSync={schedulePush,refreshUi};
 window.addEventListener("unhandledrejection",e=>{ if(String(e.reason||"").includes("Firebase")) showError(e.reason); });
 
-$("saveCloudConfig")?.addEventListener("click",()=>{
-  try{ const prefs=currentFormPrefs(); if(!prefs.config) throw new Error("Pega la configuración de Firebase"); if(!prefs.email) throw new Error("Escribe el correo compartido"); storePrefs(prefs); updateRules(); alert("Configuración guardada. La página se recargará para activar Firebase."); location.reload(); }catch(e){ showError(e); }
-});
 $("clearCloudConfig")?.addEventListener("click",async()=>{ if(!confirm("¿Quitar la conexión de nube de este navegador? Los datos locales no se borrarán.")) return; await logout(); localStorage.removeItem(CLOUD_KEY); location.reload(); });
 $("cloudLogin")?.addEventListener("click",login);
+$("cloudPassword")?.addEventListener("keydown",e=>{ if(e.key==="Enter") login(); });
 $("cloudLogout")?.addEventListener("click",logout);
 $("copyCloudRules")?.addEventListener("click",async()=>{ try{ await navigator.clipboard.writeText($("cloudRulesPreview").textContent); window.toast?.("Reglas copiadas"); }catch(e){ window.toast?.("Selecciona y copia las reglas manualmente"); } });
-[$("cloudEmail"),$("cloudWorkspace")].forEach(el=>el?.addEventListener("input",updateRules));
 
 refreshUi();
 initFirebase();
